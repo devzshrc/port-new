@@ -39,7 +39,7 @@ Authenticate Wrangler once with `bunx wrangler login`. For local Cloudflare beha
 
 ## Spotify now listening
 
-The homepage includes a small now-listening row when the configured Spotify account is actively playing. The Worker refreshes the account token and polls Spotify from `/api/spotify/now-playing`; no Spotify credentials are sent to the browser.
+The homepage includes a small listening note above the social links. It checks the configured Spotify account once on page load, shows the active track when available, and falls back to the most recently played track. No Spotify credentials are sent to the browser.
 
 1. Add `https://devzshrc.in/api/spotify/callback` (and `http://localhost:3000/api/spotify/callback` for local testing) to the Spotify Developer Dashboard.
 2. Set the client secret in Wrangler without committing it:
@@ -48,7 +48,7 @@ The homepage includes a small now-listening row when the configured Spotify acco
 wrangler secret put SPOTIFY_CLIENT_SECRET
 ```
 
-3. Open `/api/spotify/login` once, approve the `user-read-currently-playing` and `user-read-playback-state` scopes, then save the refresh token shown by the callback:
+3. Open `/api/spotify/login` once, approve the `user-read-currently-playing`, `user-read-playback-state` and `user-read-recently-played` scopes, then save the refresh token shown by the callback:
 
 ```bash
 wrangler secret put SPOTIFY_REFRESH_TOKEN

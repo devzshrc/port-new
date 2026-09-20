@@ -13,18 +13,20 @@ type SpotifyTokenResponse = {
 
 type SpotifyNowPlayingResponse = {
   is_playing?: boolean;
-  progress_ms?: number;
-  item?: {
-    type?: string;
-    name?: string;
-    artists?: Array<{ name?: string }>;
-    show?: { name?: string };
-    album?: { images?: Array<{ url?: string }> };
-    external_urls?: { spotify?: string };
-  } | null;
+  item?: SpotifyItem | null;
 };
 
-const SPOTIFY_SCOPE = "user-read-currently-playing user-read-playback-state";
+type SpotifyItem = {
+  name?: string;
+  artists?: Array<{ name?: string }>;
+  show?: { name?: string };
+  album?: { images?: Array<{ url?: string }> };
+  external_urls?: { spotify?: string };
+};
+
+type SpotifyRecentlyPlayedResponse = { items?: Array<{ track?: SpotifyItem }> };
+
+const SPOTIFY_SCOPE = "user-read-currently-playing user-read-playback-state user-read-recently-played";
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -115,20 +117,28 @@ async function spotifyAccessToken(env: SpotifyEnv) {
 async function spotifyNowPlaying(env: SpotifyEnv) {
   const accessToken = await spotifyAccessToken(env);
   if (!accessToken) return json(null);
-  const response = await fetch("https://api.spotify.com/v1/me/player/currently-playing", { headers: { authorization: `Bearer ${accessToken}` } });
-  if (response.status === 204 || !response.ok) return json(null);
-  const playback = await response.json() as SpotifyNowPlayingResponse;
-  const item = playback.item;
-  if (!item?.name) return json(null);
-  const artist = item.artists?.map(entry => entry.name).filter(Boolean).join(", ") || item.show?.name || "Spotify";
-  return json({
+  const currentResponse = await fetch("https://api.spotify.com/v1/me/player/currently-playing", { headers: { authorization: `Bearer ${accessToken}` } });
+  if (currentResponse.ok && currentResponse.status !== 204) {
+    const playback = await currentResponse.json() as SpotifyNowPlayingResponse;
+    const current = spotifyItem(playback.item);
+    if (playback.is_playing && current) return json({ ...current, isPlaying: true });
+  }
+
+  const recentResponse = await fetch("https://api.spotify.com/v1/me/player/recently-played?limit=1", { headers: { authorization: `Bearer ${accessToken}` } });
+  if (!recentResponse.ok) return json(null);
+  const recent = await recentResponse.json() as SpotifyRecentlyPlayedResponse;
+  const lastPlayed = spotifyItem(recent.items?.[0]?.track);
+  return lastPlayed ? json({ ...lastPlayed, isPlaying: false }) : json(null);
+}
+
+function spotifyItem(item: SpotifyItem | null | undefined) {
+  if (!item?.name) return null;
+  return {
     title: item.name,
-    artist,
+    artist: item.artists?.map(entry => entry.name).filter(Boolean).join(", ") || item.show?.name || "Spotify",
     href: item.external_urls?.spotify ?? "https://open.spotify.com/",
     artwork: item.album?.images?.[1]?.url ?? item.album?.images?.[0]?.url ?? null,
-    isPlaying: playback.is_playing === true,
-    progressMs: playback.progress_ms ?? 0,
-  });
+  };
 }
 
 export default {
