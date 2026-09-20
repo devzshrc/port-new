@@ -27,7 +27,7 @@ bun run build
 
 ## Cloudflare Workers deployment
 
-This is a client-rendered React SPA deployed as static assets through Cloudflare Workers. The Wrangler configuration points at `dist/`, enables SPA fallback, and routes `devzshrc.in/*` to the Worker so direct loads of `/blog`, `/blog/:slug`, and `/resources/:slug` resolve through the client router.
+This is a client-rendered React SPA deployed as static assets through Cloudflare Workers. The Wrangler configuration points at `dist/`, enables SPA fallback, and routes both `devzshrc.in/*` and `www.devzshrc.in/*` to the Worker so direct loads of `/blog`, `/blog/:slug`, and `/resources/:slug` resolve through the client router.
 
 ```bash
 bun install
