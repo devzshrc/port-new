@@ -162,6 +162,12 @@ async function spotifyNowPlaying(env: SpotifyEnv) {
   return lastPlayed ? json({ ...lastPlayed, isPlaying: false }) : json(null);
 }
 
+async function assets(request: Request, env: SpotifyEnv) {
+  const response = await env.ASSETS.fetch(request);
+  if (response.status !== 404 || !request.headers.get("accept")?.includes("text/html")) return response;
+  return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+}
+
 function spotifyItem(item: SpotifyItem | null | undefined) {
   if (!item?.name) return null;
   return {
@@ -178,6 +184,6 @@ export default {
     if (url.pathname === "/api/spotify/login") return spotifyLogin(request, env);
     if (url.pathname === "/api/spotify/callback") return spotifyCallback(request, env);
     if (url.pathname === "/api/spotify/now-playing") return spotifyNowPlaying(env);
-    return env.ASSETS.fetch(request);
+    return assets(request, env);
   },
 };

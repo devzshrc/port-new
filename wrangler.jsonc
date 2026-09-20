@@ -6,8 +6,7 @@
   "routes": ["devzshrc.in/*", "www.devzshrc.in/*"],
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS"
   },
   "vars": {
     "SPOTIFY_CLIENT_ID": "0a6020f19d884b80b952d785ba92e0e0",
