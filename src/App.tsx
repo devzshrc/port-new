@@ -108,7 +108,7 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visibleWork = published(work).sort((a, b) => a.order - b.order);
   const visiblePosts = published(posts);
   return <><Metadata route={route} /><Header /><main id="content" className="home-content">
-    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name} — a software engineer and product builder.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
+    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name}, a software engineer and product builder.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><div className="experience-list">{experience.map(entry => <article key={entry.company}><img src={entry.icon} alt={`${entry.company} logo`} width="36" height="36" /><div><h2>{entry.company}</h2><p>{entry.role}</p></div><time>{entry.period}</time></article>)}</div></section>
     <section className="section" id="work"><p className="section-label">Creating</p><TextList items={visibleWork} /></section>
     <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>

@@ -105,7 +105,7 @@ export const identity: SiteIdentity = {
 
 export const work: WorkItem[] = [
   {
-    title: "Schema — AI-Powered Form Builder",
+    title: "Schema: AI-Powered Form Builder",
     description: "An AI form builder with typed APIs, secure multi-tenant workspaces, and structured Llama-powered generation.",
     href: "https://notyourtypeformx-web.vercel.app/",
     external: true,
