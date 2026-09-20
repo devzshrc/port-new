@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 500" role="img" aria-labelledby="title">
+  <title id="title">Portfolio build notes</title>
+  <rect width="840" height="500" fill="#171717"/>
+  <g stroke="#383838"><path d="M0 100h840M0 200h840M0 300h840M0 400h840"/><path d="M140 0v500M280 0v500M420 0v500M560 0v500M700 0v500"/></g>
+  <rect x="140" y="100" width="280" height="200" rx="8" fill="#0f4bf1"/>
+  <rect x="448" y="100" width="252" height="84" rx="8" fill="#fbfbfb"/>
+  <rect x="448" y="212" width="112" height="88" rx="8" fill="#737373"/>
+  <rect x="588" y="212" width="112" height="188" rx="8" fill="#262626" stroke="#666"/>
+  <circle cx="280" cy="200" r="44" fill="#fff" opacity=".9"/>
+  <path d="M260 170h24c22 0 36 12 36 30s-14 30-36 30h-24v-60Zm23 40c9 0 14-4 14-10s-5-10-14-10h-2v20h2Z" fill="#0f4bf1"/>
+</svg>
