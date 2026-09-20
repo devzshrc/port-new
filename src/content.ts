@@ -1,4 +1,4 @@
-import avatar from "./assets/devashish-profile.png";
+import avatar from "./assets/devashish-profile.jpg";
 import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
