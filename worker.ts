@@ -28,6 +28,41 @@ type SpotifyRecentlyPlayedResponse = { items?: Array<{ track?: SpotifyItem }> };
 
 const SPOTIFY_SCOPE = "user-read-currently-playing user-read-playback-state user-read-recently-played";
 
+function base64Url(value: ArrayBufferLike) {
+  let binary = "";
+  for (const byte of new Uint8Array(value)) binary += String.fromCharCode(byte);
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+function fromBase64Url(value: string) {
+  const padded = value.replaceAll("-", "+").replaceAll("_", "/") + "=".repeat((4 - value.length % 4) % 4);
+  const binary = atob(padded);
+  return Uint8Array.from(binary, character => character.charCodeAt(0));
+}
+
+async function signingKey(secret: string) {
+  return crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+}
+
+async function createState(env: SpotifyEnv) {
+  if (!env.SPOTIFY_CLIENT_SECRET) return null;
+  const payload = `${Date.now()}.${crypto.randomUUID()}`;
+  const key = await signingKey(env.SPOTIFY_CLIENT_SECRET);
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return `${base64Url(new TextEncoder().encode(payload).buffer)}.${base64Url(signature)}`;
+}
+
+async function verifyState(state: string, env: SpotifyEnv) {
+  if (!env.SPOTIFY_CLIENT_SECRET) return false;
+  const [encodedPayload, encodedSignature] = state.split(".");
+  if (!encodedPayload || !encodedSignature) return false;
+  const payload = new TextDecoder().decode(fromBase64Url(encodedPayload));
+  const timestamp = Number(payload.split(".")[0]);
+  if (!Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 10 * 60 * 1000) return false;
+  const key = await signingKey(env.SPOTIFY_CLIENT_SECRET);
+  return crypto.subtle.verify("HMAC", key, fromBase64Url(encodedSignature), new TextEncoder().encode(payload));
+}
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -36,11 +71,6 @@ function json(data: unknown, status = 200) {
       "cache-control": "no-store",
     },
   });
-}
-
-function cookie(request: Request, name: string) {
-  const value = request.headers.get("cookie")?.split(";").map(part => part.trim()).find(part => part.startsWith(`${name}=`));
-  return value ? decodeURIComponent(value.slice(name.length + 1)) : null;
 }
 
 function redirectUri(request: Request, env: SpotifyEnv) {
@@ -56,8 +86,9 @@ function oauthUnavailable() {
 }
 
 async function spotifyLogin(request: Request, env: SpotifyEnv) {
-  if (!env.SPOTIFY_CLIENT_ID) return oauthUnavailable();
-  const state = crypto.randomUUID();
+  if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) return oauthUnavailable();
+  const state = await createState(env);
+  if (!state) return oauthUnavailable();
   const authorize = new URL("https://accounts.spotify.com/authorize");
   authorize.searchParams.set("client_id", env.SPOTIFY_CLIENT_ID);
   authorize.searchParams.set("response_type", "code");
@@ -88,7 +119,7 @@ async function spotifyCallback(request: Request, env: SpotifyEnv) {
   if (error) return callbackPage(`Spotify authorization was cancelled: ${error}.`);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  if (!code || !state || state !== cookie(request, "spotify_oauth_state")) return callbackPage("This Spotify authorization link is invalid or expired.");
+  if (!code || !state || !(await verifyState(state, env))) return callbackPage("This Spotify authorization link is invalid or expired.");
 
   const credentials = btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`);
   const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
