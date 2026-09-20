@@ -7,9 +7,5 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
-  },
-  "vars": {
-    "SPOTIFY_CLIENT_ID": "0a6020f19d884b80b952d785ba92e0e0",
-    "SPOTIFY_REDIRECT_URI": "https://devzshrc.in/api/spotify/callback"
   }
 }

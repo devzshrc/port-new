@@ -49,9 +49,6 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 .contact-links p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
 .contact-links a { color: var(--strong); font-weight: 500; }
 .contact-links a:hover { color: var(--blue); }
-.music-note { margin-top: 28px !important; color: var(--muted) !important; }
-.music-note a { color: var(--strong); font-weight: 500; }
-.music-note a:hover { color: var(--blue); }
 .section-label { margin-bottom: 30px; color: var(--muted); font-size: 12px; font-weight: 600; }
 .experience-list article { display: flex; align-items: center; gap: 12px; }
 .experience-list img { width: 36px; height: 36px; flex: none; padding: 3px; border-radius: 6px; background: var(--strong); object-fit: contain; }
