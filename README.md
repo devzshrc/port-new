@@ -36,3 +36,22 @@ bun run deploy
 ```
 
 Authenticate Wrangler once with `bunx wrangler login`. For local Cloudflare behavior, use `bun run preview:cloudflare` and open the URL Wrangler prints. The production build copies `public/_headers` and `public/robots.txt` into `dist/` automatically.
+
+## Spotify now listening
+
+The homepage includes a small now-listening row when the configured Spotify account is actively playing. The Worker refreshes the account token and polls Spotify from `/api/spotify/now-playing`; no Spotify credentials are sent to the browser.
+
+1. Add `https://devzshrc.in/api/spotify/callback` (and `http://localhost:3000/api/spotify/callback` for local testing) to the Spotify Developer Dashboard.
+2. Set the client secret in Wrangler without committing it:
+
+```bash
+wrangler secret put SPOTIFY_CLIENT_SECRET
+```
+
+3. Open `/api/spotify/login` once, approve the `user-read-currently-playing` and `user-read-playback-state` scopes, then save the refresh token shown by the callback:
+
+```bash
+wrangler secret put SPOTIFY_REFRESH_TOKEN
+```
+
+The public client ID and canonical callback URL live in `wrangler.jsonc`; secrets stay in Cloudflare's encrypted Worker secret store.

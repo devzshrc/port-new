@@ -90,6 +90,35 @@ function ContactLinks() {
   return <div className="contact-section"><p className="section-label">humans are social creatures</p><div className="contact-links">{order.map(network => { const link = identity.socials.find(entry => entry.network === network); return link ? <p key={network}>{copy[network]} <Link href={link.href}>@{handles[network]}</Link></p> : null; })}</div></div>;
 }
 
+type NowPlaying = { title: string; artist: string; href: string; artwork: string | null; isPlaying: boolean };
+
+function useNowPlaying() {
+  const [track, setTrack] = useState<NowPlaying | null>(null);
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const response = await fetch("/api/spotify/now-playing", { headers: { accept: "application/json" } });
+        if (!response.ok) return;
+        const next = await response.json() as NowPlaying | null;
+        if (active) setTrack(next);
+      } catch {
+        if (active) setTrack(null);
+      }
+    };
+    void load();
+    const interval = window.setInterval(() => void load(), 45_000);
+    return () => { active = false; window.clearInterval(interval); };
+  }, []);
+  return track;
+}
+
+function NowListening() {
+  const track = useNowPlaying();
+  if (!track?.isPlaying) return null;
+  return <div className="now-listening" aria-live="polite"><p className="section-label">now listening</p><Link href={track.href} className="now-listening-link"><span className="now-listening-art">{track.artwork && <img src={track.artwork} alt="" width="44" height="44" />}</span><span><strong>{track.title}</strong><small>by {track.artist}</small></span><span className="now-listening-arrow" aria-hidden="true">↗</span></Link></div>;
+}
+
 function HomeFooter() {
   return <footer className="home-footer"><p>© {new Date().getFullYear()} {identity.name}. {identity.footer}</p></footer>;
 }
@@ -108,7 +137,7 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visibleWork = published(work).sort((a, b) => a.order - b.order);
   const visiblePosts = published(posts);
   return <><Metadata route={route} /><Header /><main id="content" className="home-content">
-    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name} — a software engineer and product builder.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
+    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name} — a software engineer and product builder.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /><NowListening /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><div className="experience-list">{experience.map(entry => <article key={entry.company}><img src={entry.icon} alt={`${entry.company} logo`} width="36" height="36" /><div><h2>{entry.company}</h2><p>{entry.role}</p></div><time>{entry.period}</time></article>)}</div></section>
     <section className="section" id="work"><p className="section-label">Creating</p><TextList items={visibleWork} /></section>
     <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>

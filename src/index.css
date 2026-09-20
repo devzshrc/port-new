@@ -49,6 +49,17 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 .contact-links p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
 .contact-links a { color: var(--strong); font-weight: 500; }
 .contact-links a:hover { color: var(--blue); }
+.now-listening { margin-top: 28px; }
+.now-listening .section-label { margin-bottom: 10px; }
+.now-listening-link { display: flex; align-items: center; gap: 10px; max-width: 360px; padding: 6px; border-radius: 6px; color: var(--strong); }
+.now-listening-link:hover { background: var(--surface); color: var(--blue); }
+.now-listening-art { display: grid; width: 44px; height: 44px; flex: none; place-items: center; overflow: hidden; border-radius: 4px; background: var(--surface); }
+.now-listening-art img { width: 100%; height: 100%; object-fit: cover; }
+.now-listening-link strong, .now-listening-link small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now-listening-link strong { font-size: 13px; font-weight: 500; line-height: 1.4; }
+.now-listening-link small { margin-top: 1px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.now-listening-arrow { margin-left: auto; color: var(--faint); font-size: 16px; }
+.now-listening-link:hover .now-listening-arrow { color: var(--blue); }
 .section-label { margin-bottom: 30px; color: var(--muted); font-size: 12px; font-weight: 600; }
 .experience-list article { display: flex; align-items: center; gap: 12px; }
 .experience-list img { width: 36px; height: 36px; flex: none; padding: 3px; border-radius: 6px; background: var(--strong); object-fit: contain; }
