@@ -82,7 +82,7 @@ export const identity: SiteIdentity = {
   name: "Devashish",
   role: "Software Engineer",
   location: "India",
-  domain: "your-domain.com",
+  domain: "devzshrc.in",
   biography: [
     "I design and build thoughtful full-stack products, from the interface people touch to the systems that keep them dependable.",
     "रख देगा झकझोर के तुझे, तूफ़ानों का घोर है डेरा।\nभँवर से गर जो हार मान ले, काहे का फिर ज़ोर है तेरा।",

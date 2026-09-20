@@ -69,7 +69,7 @@ function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
       document.head.appendChild(structuredData);
     }
     structuredData.text = JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: window.location.origin });
-  }, [metadata.description, metadata.title, shareImage]);
+  }, [metadata.description, metadata.title, shareImage, route]);
   return null;
 }
 
