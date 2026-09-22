@@ -1,7 +1,79 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { experience, identity, posts, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
 import { matchRoute, pageMetadata, postHref, published, resourceHref } from "./lib/site";
+import { isTheme, nextTheme, type Theme } from "./lib/theme";
 import "./index.css";
+
+const themeStorageKey = "portfolio-theme";
+
+function systemTheme(): Theme {
+  try {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
+
+function applyTheme(theme: Theme, mode: "system" | "manual") {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.themeMode = mode;
+}
+
+function useTheme() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    const initial = document.documentElement.dataset.theme;
+    return isTheme(initial) ? initial : systemTheme();
+  });
+  const [mode, setMode] = useState<"system" | "manual">(() => document.documentElement.dataset.themeMode === "manual" ? "manual" : "system");
+
+  useEffect(() => {
+    let media: MediaQueryList | undefined;
+    try {
+      media = window.matchMedia("(prefers-color-scheme: dark)");
+    } catch {}
+    const updateFromSystem = () => {
+      if (document.documentElement.dataset.themeMode !== "system") return;
+      const next = media?.matches ? "dark" : "light";
+      applyTheme(next, "system");
+      setTheme(next);
+    };
+    const updateFromStorage = (event: StorageEvent) => {
+      if (event.key !== themeStorageKey && event.key !== null) return;
+      const preference = isTheme(event.newValue) ? event.newValue : null;
+      const nextMode = preference ? "manual" : "system";
+      const next = preference ?? (media?.matches ? "dark" : "light");
+      applyTheme(next, nextMode);
+      setTheme(next);
+      setMode(nextMode);
+    };
+    if (media?.addEventListener) media.addEventListener("change", updateFromSystem);
+    else media?.addListener(updateFromSystem);
+    window.addEventListener("storage", updateFromStorage);
+    return () => {
+      if (media?.removeEventListener) media.removeEventListener("change", updateFromSystem);
+      else media?.removeListener(updateFromSystem);
+      window.removeEventListener("storage", updateFromStorage);
+    };
+  }, []);
+
+  const toggle = () => {
+    const system = systemTheme();
+    const next = nextTheme(theme, system);
+    try {
+      if (next.preference) window.localStorage.setItem(themeStorageKey, next.preference);
+      else window.localStorage.removeItem(themeStorageKey);
+    } catch {}
+    const nextMode = next.preference ? "manual" : "system";
+    applyTheme(next.theme, nextMode);
+    setTheme(next.theme);
+    setMode(nextMode);
+  };
+  const targetTheme = theme === "dark" ? "light" : "dark";
+  const useSystem = mode === "manual" && targetTheme === systemTheme();
+  const label = useSystem ? `Use system theme (${targetTheme})` : `Switch to ${targetTheme} mode`;
+  const text = targetTheme === "dark" ? "Dark" : "Light";
+  return { theme, label, text, toggle };
+}
 
 function usePathname() {
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -73,8 +145,9 @@ function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
   return null;
 }
 
-function Header() {
-  return <header className="site-header"><Link href="/" className="site-wordmark" ariaLabel={`${identity.name} home`}>d.</Link><nav aria-label="Primary navigation"><ul>{identity.navigation.map(item => <li key={item.label}><Link href={item.href}>{item.label}</Link></li>)}</ul></nav></header>;
+function Header({ narrow = false }: { narrow?: boolean }) {
+  const { label, text, toggle } = useTheme();
+  return <header className={`site-header${narrow ? " site-header-home" : ""}`}><Link href="/" className="site-wordmark" ariaLabel={`${identity.name} home`}>d.</Link><nav aria-label="Primary navigation"><ul>{identity.navigation.map(item => <li key={item.label}><Link href={item.href}>{item.label}</Link></li>)}</ul></nav><button type="button" className="theme-toggle" aria-label={label} onClick={toggle}>{text}</button></header>;
 }
 
 function ContactLinks() {
@@ -92,17 +165,17 @@ function InteriorFooter() {
 
 type TextListItem = { title: string; description: string; href: string; image?: string; imageAlt?: string; links?: { label: string; href: string }[] };
 
-function TextList({ items }: { items: TextListItem[] }) {
-  return <div className="text-list">{items.map(item => <article key={item.title}>{item.image && <Link href={item.href} className="work-preview"><img src={item.image} alt={item.imageAlt ?? ""} width="840" height="470" loading="lazy" /></Link>}<h3><Link href={item.href}>{item.title} <span aria-hidden="true">→</span></Link></h3><p>{item.description}</p>{item.links && <div className="work-links">{item.links.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div>}</article>)}</div>;
+function TextList({ items, className = "" }: { items: TextListItem[]; className?: string }) {
+  return <div className={`text-list ${className}`}>{items.map(item => <article key={item.title}>{item.image && <Link href={item.href} className="work-preview"><img src={item.image} alt={item.imageAlt ?? ""} width="840" height="470" loading="lazy" /></Link>}<h3><Link href={item.href}>{item.title} <span aria-hidden="true">→</span></Link></h3><p>{item.description}</p>{item.links && <div className="work-links">{item.links.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div>}</article>)}</div>;
 }
 
 function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visibleWork = published(work).sort((a, b) => a.order - b.order);
   const visiblePosts = published(posts);
-  return <><Metadata route={route} /><Header /><main id="content" className="home-content">
-    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name}. I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
+  return <><Metadata route={route} /><Header narrow /><main id="content" className="home-content">
+    <section className="about section"><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><div className="experience-list">{experience.map(entry => <article key={entry.company}><img src={entry.icon} alt={`${entry.company} logo`} width="36" height="36" /><div><h2>{entry.company}</h2><p>{entry.role}</p></div><time>{entry.period}</time></article>)}</div></section>
-    <section className="section" id="work"><p className="section-label">Selected work</p><TextList items={visibleWork} /></section>
+    <section className="section" id="work"><p className="section-label">Selected work</p><TextList items={visibleWork} className="work-list" /></section>
     {visiblePosts.length > 0 && <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
     <section className="section belief-section"><p className="section-label">firmly believe in -</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>
     <HomeFooter />

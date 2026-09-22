@@ -3,6 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        let preference = null;
+        try {
+          const stored = window.localStorage.getItem("portfolio-theme");
+          if (stored === "light" || stored === "dark") preference = stored;
+        } catch {}
+        let system = "light";
+        try {
+          system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        } catch {}
+        const root = document.documentElement;
+        root.dataset.theme = preference ?? system;
+        root.dataset.themeMode = preference ? "manual" : "system";
+      })();
+    </script>
     <meta name="description" content="Product work and useful resources from Devashish." />
     <meta property="og:title" content="Devashish | Software Engineer" />
     <meta property="og:description" content="Product work and useful resources from Devashish." />
