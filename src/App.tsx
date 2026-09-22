@@ -165,6 +165,34 @@ function InteriorFooter() {
 
 type TextListItem = { title: string; description: string; href: string; image?: string; imageAlt?: string; links?: { label: string; href: string }[] };
 
+type LeetCodeStats = { username: string; total: number; easy: number; medium: number; hard: number };
+
+function LeetCodeSection() {
+  const [stats, setStats] = useState<LeetCodeStats | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/leetcode-stats", { signal: controller.signal })
+      .then(response => {
+        if (!response.ok) throw new Error("Stats unavailable");
+        return response.json() as Promise<LeetCodeStats>;
+      })
+      .then(setStats)
+      .catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    return () => controller.abort();
+  }, []);
+
+  return <section className="section leetcode-section" aria-label="LeetCode statistics">
+    <div className="leetcode-heading"><p className="section-label">LeetCode</p><Link href="https://leetcode.com/u/devzshrc/">@devzshrc ↗</Link></div>
+    {stats ? <div className="leetcode-stats" aria-label={`${stats.total} problems solved`}>
+      <div className="leetcode-total"><strong>{stats.total}</strong><span>Solved</span></div>
+      <div><strong>{stats.easy}</strong><span>Easy</span></div>
+      <div><strong>{stats.medium}</strong><span>Medium</span></div>
+      <div><strong>{stats.hard}</strong><span>Hard</span></div>
+    </div> : <p className="leetcode-status" aria-live="polite">{failed ? "Stats temporarily unavailable" : "Loading stats…"}</p>}
+  </section>;
+}
+
 function TextList({ items, className = "" }: { items: TextListItem[]; className?: string }) {
   return <div className={`text-list ${className}`}>{items.map(item => <article key={item.title}>{item.image && <Link href={item.href} className="work-preview"><img src={item.image} alt={item.imageAlt ?? ""} width="840" height="470" loading="lazy" /></Link>}<h3><Link href={item.href}>{item.title} <span aria-hidden="true">→</span></Link></h3><p>{item.description}</p>{item.links && <div className="work-links">{item.links.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div>}</article>)}</div>;
 }
@@ -175,6 +203,7 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   return <><Metadata route={route} /><Header narrow /><main id="content" className="home-content">
     <section className="about section"><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><div className="experience-list">{experience.map(entry => <article key={entry.company}><img src={entry.icon} alt={`${entry.company} logo`} width="36" height="36" /><div><h2>{entry.company}</h2><p>{entry.role}</p></div><time>{entry.period}</time></article>)}</div></section>
+    <LeetCodeSection />
     <section className="section" id="work"><p className="section-label">Selected work</p><TextList items={visibleWork} className="work-list" /></section>
     {visiblePosts.length > 0 && <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
     <section className="section belief-section"><p className="section-label">firmly believe in -</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>

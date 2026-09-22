@@ -94,6 +94,16 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 .experience-list h2 { margin-bottom: 2px; font-size: 16px; line-height: 1.35; }
 .experience-list p { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 .experience-list time { margin-left: auto; flex: none; color: var(--faint); font-size: 13px; line-height: 1.6; white-space: nowrap; }
+.leetcode-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.leetcode-heading .section-label { margin-bottom: 0; }
+.leetcode-heading a { color: var(--muted); font-size: 12px; }
+.leetcode-heading a:hover { color: var(--blue); }
+.leetcode-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px clamp(18px, 5vw, 36px); }
+.leetcode-stats > div { display: flex; flex-direction: column; gap: 5px; }
+.leetcode-stats strong { color: var(--heading); font-size: 16px; font-weight: 500; }
+.leetcode-stats span, .leetcode-status { margin: 0; color: var(--faint); font-size: 11px; }
+.leetcode-stats .leetcode-total { margin-right: 2px; padding-right: clamp(18px, 5vw, 36px); border-right: 1px solid var(--border); }
+.leetcode-total strong { color: var(--strong); font-size: 22px; }
 .text-list article { margin-bottom: 36px; }
 .text-list article:last-child { margin-bottom: 0; }
 .work-list article { padding: clamp(12px, 2.5vw, 20px); border: 1px dashed var(--border); border-radius: 6px; transition: transform 180ms ease, border-color 180ms ease; }

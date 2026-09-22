@@ -1,3 +1,5 @@
+import { leetcodeStats } from "./src/lib/leetcode";
+
 type WorkerEnv = {
   ASSETS: { fetch(request: Request): Promise<Response> };
 };
@@ -10,6 +12,10 @@ async function assets(request: Request, env: WorkerEnv) {
 
 export default {
   fetch(request: Request, env: WorkerEnv) {
+    const url = new URL(request.url);
+    if (url.pathname === "/api/leetcode-stats") {
+      return leetcodeStats(request);
+    }
     return assets(request, env);
   },
 };
