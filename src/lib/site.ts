@@ -34,7 +34,7 @@ export function postHref(post: Post) {
 
 export function pageMetadata(route: RouteMatch, allResources: ResourceItem[], allPosts: Post[] = []) {
   const suffix = "Devashish";
-  if (route.kind === "home") return { title: `${suffix} | Software Engineer`, description: "Product work and useful resources from Devashish." };
+  if (route.kind === "home") return { title: `${suffix} | Software Engineer`, description: "Product engineering and selected work from Devashish." };
   if (route.kind === "blog") return { title: `Blog | ${suffix}`, description: "Notes on product engineering and building useful software." };
   if (route.kind === "post") {
     const post = published(allPosts).find(entry => entry.slug === route.slug);

@@ -3,7 +3,7 @@ import { posts, resources, work } from "../content";
 import { matchRoute, pageMetadata, published, resourceHref } from "./site";
 
 describe("portfolio helpers", () => {
-  test("matches the public routes and sample blog route", () => {
+  test("matches route patterns", () => {
     expect(matchRoute("/")).toEqual({ kind: "home" });
     expect(matchRoute("/blog/")).toEqual({ kind: "blog" });
     expect(matchRoute("/blog/sample-blog")).toEqual({ kind: "post", slug: "sample-blog" });
@@ -12,8 +12,10 @@ describe("portfolio helpers", () => {
     expect(matchRoute("/missing")).toEqual({ kind: "not-found" });
   });
 
-  test("hides draft work and keeps published work", () => {
-    expect(published(work).every(entry => entry.status === "published")).toBe(true);
+  test("only shows finished work and hides placeholder content", () => {
+    expect(published(work).map(entry => entry.title)).toEqual(["Schema — AI form builder"]);
+    expect(published(posts)).toEqual([]);
+    expect(published(resources)).toEqual([]);
   });
 
   test("distinguishes internal and external resource destinations", () => {
@@ -22,8 +24,8 @@ describe("portfolio helpers", () => {
   });
 
   test("derives metadata from the remaining routes", () => {
-    expect(pageMetadata(matchRoute("/blog/sample-blog"), resources, posts).title).toContain("Sample blog");
-    expect(pageMetadata(matchRoute("/resources/portfolio"), resources).title).toContain("Portfolio build notes");
+    expect(pageMetadata(matchRoute("/blog/sample-blog"), resources, posts).title).toContain("Page not found");
+    expect(pageMetadata(matchRoute("/resources/portfolio"), resources).title).toContain("Page not found");
     expect(pageMetadata(matchRoute("/unknown"), resources).title).toContain("Page not found");
   });
 });

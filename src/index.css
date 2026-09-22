@@ -38,16 +38,16 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 .section { margin-bottom: var(--section-gap); }
 .about { margin-top: 40px; }
 .avatar { width: 100px; height: 100px; margin-bottom: 15px; border-radius: 8px; object-fit: cover; }
-.about h1 { margin-bottom: 10px; color: var(--heading); font-size: 22px; font-weight: 400; line-height: 1.6; }
+.about h1 { margin-bottom: 14px; color: var(--strong); font-size: 32px; font-weight: 500; letter-spacing: -.03em; line-height: 1.25; text-wrap: balance; }
 .about p { margin-bottom: 8px; color: var(--body); font-size: 15px; line-height: 1.6; }
 .about p:last-child { margin-bottom: 0; }
 .about-quote { margin: 16px 0 0; padding: 3px 0; border-left: 0; color: var(--quote); font-size: 15px; font-style: italic; line-height: 1.7; white-space: pre-line; }
 .belief-section .about-quote { margin-top: 0; }
 .contact-section { margin-top: 32px; }
-.contact-section .section-label { margin-bottom: 10px; }
-.contact-links { display: grid; gap: 2px; }
-.contact-links p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.contact-links a { color: var(--strong); font-weight: 500; }
+.contact-cta { display: inline-block; padding: 12px 16px; border-radius: 4px; background: var(--strong); color: white; font-size: 14px; font-weight: 600; }
+.contact-cta:hover { background: var(--heading); color: white; }
+.contact-links { display: inline-flex; flex-wrap: wrap; gap: 14px; margin-left: 18px; }
+.contact-links a { color: var(--muted); font-size: 13px; font-weight: 500; }
 .contact-links a:hover { color: var(--blue); }
 .section-label { margin-bottom: 30px; color: var(--muted); font-size: 12px; font-weight: 600; }
 .experience-list article { display: flex; align-items: center; gap: 12px; }
@@ -58,6 +58,8 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 .experience-list time { margin-left: auto; flex: none; color: var(--faint); font-size: 13px; line-height: 1.6; white-space: nowrap; }
 .text-list article { margin-bottom: 30px; }
 .text-list article:last-child { margin-bottom: 0; }
+.work-preview { display: block; overflow: hidden; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 6px; }
+.work-preview img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .text-list h3 { margin-bottom: 5px; font-size: 16px; line-height: 1.6; }
 .text-list h3 a { color: var(--strong); }
 .text-list h3 a:hover { color: var(--blue); }
@@ -137,7 +139,8 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
   .site-header nav a { font-size: 13px; }
   .home-content { padding-inline: 20px; }
   .section { margin-bottom: var(--section-gap); }
-  .about h1 { font-size: 22px; line-height: 1.4; }
+  .about h1 { font-size: 26px; line-height: 1.3; }
+  .contact-links { margin-top: 16px; margin-left: 0; }
   .section-label { margin-bottom: 20px; }
   .experience-list article { align-items: flex-start; }
   .experience-list time { font-size: 12px; }

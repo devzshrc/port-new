@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import { experience, identity, posts, resources, work, type ContentBlock, type Post, type ResourceItem, type SocialLink } from "./content";
+import { experience, identity, posts, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
 import { matchRoute, pageMetadata, postHref, published, resourceHref } from "./lib/site";
 import "./index.css";
 
@@ -78,16 +78,8 @@ function Header() {
 }
 
 function ContactLinks() {
-  const copy: Record<SocialLink["network"], string> = {
-    cal: "book a call at",
-    x: "dm me at",
-    github: "see my code at",
-    instagram: "i occasionally post on",
-    linkedin: "happy to announce that I'm also on",
-  };
-  const handles: Record<SocialLink["network"], string> = { cal: "cal", x: "x", github: "GitHub", instagram: "instagram", linkedin: "linkedin" };
-  const order: SocialLink["network"][] = ["cal", "x", "github", "instagram", "linkedin"];
-  return <div className="contact-section"><p className="section-label">humans are social creatures</p><div className="contact-links">{order.map(network => { const link = identity.socials.find(entry => entry.network === network); return link ? <p key={network}>{copy[network]} <Link href={link.href}>@{handles[network]}</Link></p> : null; })}</div></div>;
+  const findSocial = (network: "cal" | "github" | "linkedin" | "x") => identity.socials.find(link => link.network === network)!.href;
+  return <div className="contact-section" id="contact"><Link href={findSocial("cal")} className="contact-cta">Book a call ↗</Link><div className="contact-links"><Link href={findSocial("github")}>GitHub ↗</Link><Link href={findSocial("linkedin")}>LinkedIn ↗</Link><Link href={findSocial("x")}>X ↗</Link></div></div>;
 }
 
 function HomeFooter() {
@@ -95,23 +87,23 @@ function HomeFooter() {
 }
 
 function InteriorFooter() {
-  return <footer className="interior-footer"><div><nav aria-label="Footer navigation"><Link href="/blog">Blog</Link><Link href="/resources">Resources</Link><Link href="/">Home</Link></nav><p>© {new Date().getFullYear()} {identity.name}. {identity.footer}</p></div></footer>;
+  return <footer className="interior-footer"><div><nav aria-label="Footer navigation"><Link href="/">Home</Link><Link href="/#work">Work</Link><Link href="/#contact">Contact</Link></nav><p>© {new Date().getFullYear()} {identity.name}. {identity.footer}</p></div></footer>;
 }
 
-type TextListItem = { title: string; description: string; href: string; links?: { label: string; href: string }[] };
+type TextListItem = { title: string; description: string; href: string; image?: string; imageAlt?: string; links?: { label: string; href: string }[] };
 
 function TextList({ items }: { items: TextListItem[] }) {
-  return <div className="text-list">{items.map(item => <article key={item.title}><h3><Link href={item.href}>{item.title} <span aria-hidden="true">→</span></Link></h3><p>{item.description}</p>{item.links && <div className="work-links">{item.links.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div>}</article>)}</div>;
+  return <div className="text-list">{items.map(item => <article key={item.title}>{item.image && <Link href={item.href} className="work-preview"><img src={item.image} alt={item.imageAlt ?? ""} width="840" height="470" loading="lazy" /></Link>}<h3><Link href={item.href}>{item.title} <span aria-hidden="true">→</span></Link></h3><p>{item.description}</p>{item.links && <div className="work-links">{item.links.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div>}</article>)}</div>;
 }
 
 function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visibleWork = published(work).sort((a, b) => a.order - b.order);
   const visiblePosts = published(posts);
   return <><Metadata route={route} /><Header /><main id="content" className="home-content">
-    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name}, a software engineer and product builder.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
+    <section className="about section"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /><h1>I'm {identity.name}. I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><div className="experience-list">{experience.map(entry => <article key={entry.company}><img src={entry.icon} alt={`${entry.company} logo`} width="36" height="36" /><div><h2>{entry.company}</h2><p>{entry.role}</p></div><time>{entry.period}</time></article>)}</div></section>
-    <section className="section" id="work"><p className="section-label">Creating</p><TextList items={visibleWork} /></section>
-    <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>
+    <section className="section" id="work"><p className="section-label">Selected work</p><TextList items={visibleWork} /></section>
+    {visiblePosts.length > 0 && <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
     <section className="section belief-section"><p className="section-label">firmly believe in -</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>
     <HomeFooter />
   </main></>;
@@ -123,6 +115,7 @@ function ArchiveCard({ resource }: { resource: ResourceItem }) {
 }
 
 function ResourcesPage({ route }: { route: ReturnType<typeof matchRoute> }) {
+  if (!published(resources).length) return <NotFoundPage route={{ kind: "not-found" }} />;
   return <><Metadata route={route} /><Header /><main id="content" className="archive-page"><header className="archive-heading"><h1>Resources</h1><p>Build notes, guides and useful collections.</p></header><div className="archive-grid">{published(resources).map(resource => <ArchiveCard key={resource.slug} resource={resource} />)}</div></main><InteriorFooter /></>;
 }
 
@@ -132,6 +125,7 @@ function BlogCard({ post }: { post: Post }) {
 }
 
 function BlogPage({ route }: { route: ReturnType<typeof matchRoute> }) {
+  if (!published(posts).length) return <NotFoundPage route={{ kind: "not-found" }} />;
   return <><Metadata route={route} /><Header /><main id="content" className="archive-page"><header className="archive-heading"><h1>Blog</h1><p>Notes on product engineering and building useful software.</p></header><div className="archive-grid">{published(posts).map(post => <BlogCard key={post.slug} post={post} />)}</div></main><InteriorFooter /></>;
 }
 

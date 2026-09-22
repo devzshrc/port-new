@@ -2,6 +2,7 @@ import avatar from "./assets/devashish-profile.jpg";
 import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
+import schemaScreenshot from "./assets/schema-screenshot.png";
 
 export type PublicationStatus = "published" | "draft";
 export type NavigationLink = { label: string; href: string };
@@ -23,6 +24,8 @@ export type WorkItem = {
   title: string;
   description: string;
   href: string;
+  image?: string;
+  imageAlt?: string;
   external?: boolean;
   links?: { label: string; href: string }[];
   order: number;
@@ -84,14 +87,13 @@ export const identity: SiteIdentity = {
   location: "India",
   domain: "devzshrc.in",
   biography: [
-    "I design and build thoughtful full-stack products, from the interface people touch to the systems that keep them dependable.",
+    "I design user flows, build features, and engineer the APIs behind them. At Redstring Remote, I work on backend and platform systems.",
     "रख देगा झकझोर के तुझे, तूफ़ानों का घोर है डेरा।\nभँवर से गर जो हार मान ले, काहे का फिर ज़ोर है तेरा।",
   ],
   avatar,
   navigation: [
     { label: "Work", href: "/#work" },
-    { label: "Blog", href: "/blog" },
-    { label: "Resources", href: "/resources" },
+    { label: "Contact", href: "/#contact" },
   ],
   socials: [
     { label: "X", href: "https://x.com/devzshrc", network: "x" },
@@ -105,9 +107,11 @@ export const identity: SiteIdentity = {
 
 export const work: WorkItem[] = [
   {
-    title: "Schema: AI-Powered Form Builder",
-    description: "An AI form builder with typed APIs, secure multi-tenant workspaces, and structured Llama-powered generation.",
+    title: "Schema — AI form builder",
+    description: "I designed and built Schema end to end, from the user flows and features to the APIs. It turns a plain-language prompt into a form with questions, field types, validation, and logic.",
     href: "https://notyourtypeformx-web.vercel.app/",
+    image: schemaScreenshot,
+    imageAlt: "Schema landing page showing its AI form builder introduction",
     external: true,
     links: [
       { label: "Live", href: "https://notyourtypeformx-web.vercel.app/" },
@@ -121,7 +125,7 @@ export const work: WorkItem[] = [
     description: "A compact home for product work and useful resources.",
     href: "/resources/portfolio",
     order: 2,
-    status: "published",
+    status: "draft",
   },
   {
     title: "Next product",
@@ -158,7 +162,7 @@ export const resources: ResourceItem[] = [
     description: "The decisions behind this small, content-led portfolio system.",
     cover: coverPortfolio,
     coverAlt: "Abstract blue editorial grid representing the portfolio",
-    status: "published",
+    status: "draft",
     actionLabel: "View the website",
     body: [
       { type: "paragraph", text: "This portfolio is intentionally small. A typed content layer supplies the homepage, resource archive and detail pages while the interface stays focused on readable typography and useful links." },
@@ -185,7 +189,7 @@ export const posts: Post[] = [
     date: "September 20, 2026",
     cover: coverPortfolio,
     coverAlt: "Abstract blue editorial grid representing a sample blog post",
-    status: "published",
+    status: "draft",
     body: [
       { type: "paragraph", text: "This is a sample blog entry for the portfolio. It gives the writing route a complete shape without pretending to be a finished essay." },
       { type: "heading", text: "A place for useful notes" },
