@@ -104,6 +104,11 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 .leetcode-stats span, .leetcode-status { margin: 0; color: var(--faint); font-size: 11px; }
 .leetcode-stats .leetcode-total { margin-right: 2px; padding-right: clamp(18px, 5vw, 36px); border-right: 1px solid var(--border); }
 .leetcode-total strong { color: var(--strong); font-size: 22px; }
+.resume-section { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+.resume-section .section-label { margin-bottom: 8px; }
+.resume-section > div > p:last-child { margin-bottom: 0; color: var(--muted); line-height: 1.5; }
+.resume-link { flex: none; color: var(--heading); font-size: 13px; font-weight: 500; }
+.resume-link:hover { color: var(--blue); }
 .text-list article { margin-bottom: 36px; }
 .text-list article:last-child { margin-bottom: 0; }
 .work-list article { padding: clamp(12px, 2.5vw, 20px); border: 1px dashed var(--border); border-radius: 6px; transition: transform 180ms ease, border-color 180ms ease; }
@@ -196,6 +201,7 @@ h1, h2, h3 { color: var(--heading); font-weight: 500; }
 }
 
 @media (max-width: 480px) {
+  .resume-section { align-items: flex-start; flex-direction: column; gap: 14px; }
   .experience-list article { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 4px 12px; }
   .experience-list article > div, .experience-list time { grid-column: 2; }
   .experience-list time { margin-left: 0; white-space: normal; }
