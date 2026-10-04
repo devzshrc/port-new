@@ -1,4 +1,5 @@
 import avatar from "./assets/devashish-profile.jpg";
+import banner from "./assets/banner.jpg";
 import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
@@ -13,11 +14,23 @@ export type SiteIdentity = {
   role: string;
   location: string;
   domain: string;
+  email: string;
+  now: { text: string; updated: string };
   biography: string[];
   avatar: string;
+  banner: string;
+  bannerAlt: string;
   navigation: NavigationLink[];
   socials: SocialLink[];
   footer: string;
+};
+
+export type CaseStudy = {
+  slug: string;
+  role: string;
+  year: string;
+  stack: string[];
+  body: ContentBlock[];
 };
 
 export type WorkItem = {
@@ -28,6 +41,7 @@ export type WorkItem = {
   imageAlt?: string;
   external?: boolean;
   links?: { label: string; href: string }[];
+  caseStudy?: CaseStudy;
   order: number;
   status: PublicationStatus;
 };
@@ -45,6 +59,17 @@ export type ExperienceEntry = {
   role: string;
   period: string;
   icon: string;
+  companyHref?: string;
+  location?: string;
+  employmentType?: string;
+  stack?: string[];
+  summary?: string;
+  highlights?: string[];
+};
+
+export type SkillGroup = {
+  category: string;
+  items: string[];
 };
 
 export type ContentBlock =
@@ -86,11 +111,15 @@ export const identity: SiteIdentity = {
   role: "Software Engineer",
   location: "India",
   domain: "devzshrc.in",
+  email: "devzshrcz@gmail.com",
+  now: { text: "Building backend and platform systems at Redstring Remote.", updated: "Sep 2026" },
   biography: [
     "I design user flows, build features, and engineer the APIs behind them. At Redstring Remote, I work on backend and platform systems.",
     "रख देगा झकझोर के तुझे, तूफ़ानों का घोर है डेरा।\nभँवर से गर जो हार मान ले, काहे का फिर ज़ोर है तेरा।",
   ],
   avatar,
+  banner,
+  bannerAlt: "Steve Jobs leaning back at his desk in an early Apple office",
   navigation: [
     { label: "Work", href: "/#work" },
     { label: "Contact", href: "/#contact" },
@@ -109,14 +138,34 @@ export const work: WorkItem[] = [
   {
     title: "Schema — AI form builder",
     description: "I designed and built Schema end to end, from the user flows and features to the APIs. It turns a plain-language prompt into a form with questions, field types, validation, and logic.",
-    href: "https://notyourtypeformx-web.vercel.app/",
+    href: "/work/schema",
     image: schemaScreenshot,
     imageAlt: "Schema landing page showing its AI form builder introduction",
-    external: true,
     links: [
       { label: "Live", href: "https://notyourtypeformx-web.vercel.app/" },
       { label: "GitHub", href: "https://github.com/devzshrc/notyourtypeformx" },
     ],
+    caseStudy: {
+      slug: "schema",
+      role: "Design and engineering",
+      year: "2026",
+      stack: ["Next.js", "tRPC", "Express", "Drizzle", "Zod"],
+      body: [
+        { type: "heading", text: "The problem" },
+        { type: "paragraph", text: "Building a good form is slow. You decide on the questions, pick the right field type for each, add validation, and wire up logic that skips questions that don't apply. Most of that work is mechanical once you know what you want to ask." },
+        { type: "heading", text: "The approach" },
+        { type: "paragraph", text: "Schema starts from a plain-language prompt. You describe the form you need, and it returns a structured draft: questions, field types, validation rules, and conditional logic, ready to edit rather than build." },
+        { type: "list", items: [
+          "A typed form schema is the single source of truth, so generated and hand-edited forms behave the same way.",
+          "The model's output is validated against that schema before it reaches the editor, so a bad generation fails safely.",
+          "Everything generated stays editable. The prompt gives you a head start, not a locked result.",
+        ] },
+        { type: "heading", text: "My role" },
+        { type: "paragraph", text: "I designed and built Schema end to end: the user flows, the editor and form features, and the APIs behind them." },
+        { type: "heading", text: "Outcome" },
+        { type: "paragraph", text: "Schema is live and open source. Try it, or read the code on GitHub." },
+      ],
+    },
     order: 1,
     status: "published",
   },
@@ -148,11 +197,26 @@ export const education: EducationEntry[] = [
 
 export const experience: ExperienceEntry[] = [
   {
-    company: "Redstring Remote",
+    company: "Redstring",
     role: "Software Engineer, Backend and Platform",
     period: "Apr 2026 – Present",
     icon: redstringIcon,
+    location: "Remote",
+    employmentType: "Full-time",
+    stack: ["TypeScript", "Node.js", "Express", "PostgreSQL"],
+    summary: "Backend and platform engineering.",
+    highlights: [
+      "Design and build backend services and the APIs behind product features.",
+      "Work on platform systems that other teams build on.",
+    ],
   },
+];
+
+export const skills: SkillGroup[] = [
+  { category: "Languages", items: ["TypeScript", "JavaScript", "SQL"] },
+  { category: "Backend", items: ["Node.js", "Express", "tRPC", "REST"] },
+  { category: "Data", items: ["PostgreSQL", "Drizzle", "Zod"] },
+  { category: "Frontend & Deploy", items: ["React", "Next.js", "Vercel", "Cloudflare"] },
 ];
 
 export const resources: ResourceItem[] = [
@@ -197,3 +261,19 @@ export const posts: Post[] = [
     ],
   },
 ];
+
+/* Availability: times are "HH:MM" in `timeZone`. Calls can only be booked inside `open` blocks. */
+export type DayBlock = { start: string; end: string; title: string; open?: boolean };
+
+export const availability = {
+  timeZone: "Asia/Kolkata",
+  city: "Lucknow",
+  workDays: [1, 2, 3, 4, 5],
+  callMinutes: 30,
+  bookingUrl: "https://cal.com/de5ash1zh/30min",
+  day: [
+    { start: "08:00", end: "11:00", title: "Learning" },
+    { start: "11:00", end: "20:30", title: "Redstring Remote" },
+    { start: "20:30", end: "23:30", title: "Calls", open: true },
+  ] satisfies DayBlock[],
+};
