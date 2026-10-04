@@ -1,9 +1,10 @@
-import type { Post, PublicationStatus, ResourceItem } from "../content";
+import type { Post, PublicationStatus, ResourceItem, WorkItem } from "../content";
 
 export type RouteMatch =
   | { kind: "home" }
   | { kind: "blog" }
   | { kind: "post"; slug: string }
+  | { kind: "work"; slug: string }
   | { kind: "resources" }
   | { kind: "resource"; slug: string }
   | { kind: "not-found" };
@@ -14,6 +15,8 @@ export function matchRoute(pathname: string): RouteMatch {
   if (path === "/blog") return { kind: "blog" };
   const post = path.match(/^\/blog\/([^/]+)$/);
   if (post) return { kind: "post", slug: decodeURIComponent(post[1]!) };
+  const work = path.match(/^\/work\/([^/]+)$/);
+  if (work) return { kind: "work", slug: decodeURIComponent(work[1]!) };
   if (path === "/resources") return { kind: "resources" };
   const resource = path.match(/^\/resources\/([^/]+)$/);
   if (resource) return { kind: "resource", slug: decodeURIComponent(resource[1]!) };
@@ -32,13 +35,21 @@ export function postHref(post: Post) {
   return `/blog/${post.slug}`;
 }
 
-export function pageMetadata(route: RouteMatch, allResources: ResourceItem[], allPosts: Post[] = []) {
+export function findCaseStudy(allWork: WorkItem[], slug: string) {
+  return published(allWork).find(entry => entry.caseStudy?.slug === slug);
+}
+
+export function pageMetadata(route: RouteMatch, allResources: ResourceItem[], allPosts: Post[] = [], allWork: WorkItem[] = []) {
   const suffix = "Devashish";
   if (route.kind === "home") return { title: `${suffix} | Software Engineer`, description: "Product engineering and selected work from Devashish." };
   if (route.kind === "blog") return { title: `Blog | ${suffix}`, description: "Notes on product engineering and building useful software." };
   if (route.kind === "post") {
     const post = published(allPosts).find(entry => entry.slug === route.slug);
     if (post) return { title: `${post.title} | ${suffix}`, description: post.excerpt };
+  }
+  if (route.kind === "work") {
+    const entry = findCaseStudy(allWork, route.slug);
+    if (entry) return { title: `${entry.title} | ${suffix}`, description: entry.description };
   }
   if (route.kind === "resources") return { title: `Resources | ${suffix}`, description: "Useful resources and build notes from Devashish." };
   if (route.kind === "resource") {

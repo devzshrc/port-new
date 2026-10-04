@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { posts, resources, work } from "../content";
-import { matchRoute, pageMetadata, published, resourceHref } from "./site";
+import { findCaseStudy, matchRoute, pageMetadata, published, resourceHref } from "./site";
 
 describe("portfolio helpers", () => {
   test("matches route patterns", () => {
@@ -27,5 +27,14 @@ describe("portfolio helpers", () => {
     expect(pageMetadata(matchRoute("/blog/sample-blog"), resources, posts).title).toContain("Page not found");
     expect(pageMetadata(matchRoute("/resources/portfolio"), resources).title).toContain("Page not found");
     expect(pageMetadata(matchRoute("/unknown"), resources).title).toContain("Page not found");
+  });
+});
+
+describe("case studies", () => {
+  test("routes work slugs to published case studies", () => {
+    expect(matchRoute("/work/schema")).toEqual({ kind: "work", slug: "schema" });
+    expect(findCaseStudy(work, "schema")?.title).toBe("Schema — AI form builder");
+    expect(findCaseStudy(work, "missing")).toBeUndefined();
+    expect(pageMetadata(matchRoute("/work/schema"), resources, posts, work).title).toContain("Schema");
   });
 });

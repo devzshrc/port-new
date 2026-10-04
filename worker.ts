@@ -1,3 +1,4 @@
+import { githubActivity } from "./src/lib/github";
 import { leetcodeStats } from "./src/lib/leetcode";
 
 type WorkerEnv = {
@@ -15,6 +16,9 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/api/leetcode-stats") {
       return leetcodeStats(request);
+    }
+    if (url.pathname === "/api/github-activity") {
+      return githubActivity(request);
     }
     return assets(request, env);
   },

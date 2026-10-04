@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import { experience, identity, posts, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
-import { matchRoute, pageMetadata, postHref, published, resourceHref } from "./lib/site";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import { flushSync } from "react-dom";
+import { education, experience, identity, posts, resources, skills, work, type ContentBlock, type Post, type ResourceItem } from "./content";
+import type { GitHubActivity } from "./lib/github";
+import type { RecentSolve } from "./lib/leetcode";
+import { findCaseStudy, matchRoute, pageMetadata, postHref, published, resourceHref } from "./lib/site";
 import { isTheme, nextTheme, type Theme } from "./lib/theme";
+import { LocationMap } from "@/components/ui/expand-map";
+import { FindATime } from "@/components/find-a-time";
 import "./index.css";
 
 const themeStorageKey = "portfolio-theme";
@@ -75,35 +80,85 @@ function useTheme() {
   return { theme, label, text, toggle };
 }
 
+const ThemeContext = createContext<ReturnType<typeof useTheme> | null>(null);
+const useThemeContext = () => useContext(ThemeContext)!;
+
+const navigateEvent = "app:navigate";
+
+export function navigate(href: string) {
+  const url = new URL(href, window.location.origin);
+  if (url.origin !== window.location.origin || (url.hash && url.pathname === window.location.pathname)) {
+    if (url.origin === window.location.origin) window.location.hash = url.hash;
+    else window.open(url.href, "_blank", "noreferrer");
+    return;
+  }
+  if (url.hash) {
+    window.location.href = url.href;
+    return;
+  }
+  window.history.pushState({}, "", url);
+  window.dispatchEvent(new Event(navigateEvent));
+}
+
+function withTransition(update: () => void) {
+  const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (!document.startViewTransition || reduced) return update();
+  document.startViewTransition(() => flushSync(update));
+}
+
+function useCopyEmail() {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(identity.email);
+    } catch {
+      window.location.href = `mailto:${identity.email}`;
+      return;
+    }
+    setCopied(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setCopied(false), 1600);
+  };
+  return { copied, copy };
+}
+
 function usePathname() {
   const [pathname, setPathname] = useState(window.location.pathname);
   useEffect(() => {
-    const onPopState = () => setPathname(window.location.pathname);
+    const onPopState = () => withTransition(() => setPathname(window.location.pathname));
+    const onNavigate = () => withTransition(() => {
+      setPathname(window.location.pathname);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    window.addEventListener(navigateEvent, onNavigate);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener(navigateEvent, onNavigate);
+    };
   }, []);
   return pathname;
 }
 
 function Link({ href, children, className, ariaLabel }: { href: string; children: ReactNode; className?: string; ariaLabel?: string }) {
   const external = /^(https?:|mailto:)/.test(href);
-  const navigate = (event: MouseEvent<HTMLAnchorElement>) => {
+  const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (external || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const url = new URL(href, window.location.origin);
-    if (url.hash) return;
+    if (new URL(href, window.location.origin).hash) return;
     event.preventDefault();
-    window.history.pushState({}, "", url);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-    window.scrollTo({ top: 0, behavior: "instant" });
+    navigate(href);
   };
-  return <a href={href} className={className} aria-label={ariaLabel} onClick={navigate} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>{children}</a>;
+  return <a href={href} className={className} aria-label={ariaLabel} onClick={onClick} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>{children}</a>;
 }
 
 function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
-  const metadata = pageMetadata(route, resources, posts);
+  const metadata = pageMetadata(route, resources, posts, work);
+  const workImage = route.kind === "work" ? findCaseStudy(work, route.slug)?.image : undefined;
   const resourceImage = route.kind === "resource" ? published(resources).find(resource => resource.slug === route.slug)?.cover : undefined;
   const postImage = route.kind === "post" ? published(posts).find(post => post.slug === route.slug)?.cover : undefined;
-  const shareImage = resourceImage ?? postImage;
+  const shareImage = workImage ?? resourceImage ?? postImage ?? "/og.png";
   useEffect(() => {
     document.title = metadata.title;
     const setMeta = (selector: string, attribute: "name" | "property", key: string, value: string) => {
@@ -130,9 +185,8 @@ function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
     setMeta('meta[property="og:url"]', "property", "og:url", canonicalUrl);
     setMeta('meta[name="twitter:title"]', "name", "twitter:title", metadata.title);
     setMeta('meta[name="twitter:description"]', "name", "twitter:description", metadata.description);
-    setMeta('meta[name="twitter:card"]', "name", "twitter:card", shareImage ? "summary_large_image" : "summary");
-    if (shareImage) setMeta('meta[property="og:image"]', "property", "og:image", new URL(shareImage, window.location.origin).href);
-    else document.head.querySelector('meta[property="og:image"]')?.remove();
+    setMeta('meta[name="twitter:card"]', "name", "twitter:card", "summary_large_image");
+    setMeta('meta[property="og:image"]', "property", "og:image", new URL(shareImage, window.location.origin).href);
     let structuredData = document.head.querySelector<HTMLScriptElement>('script[data-site-json-ld]');
     if (!structuredData) {
       structuredData = document.createElement("script");
@@ -146,13 +200,15 @@ function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
 }
 
 function Header({ narrow = false }: { narrow?: boolean }) {
-  const { label, text, toggle } = useTheme();
-  return <header className={`site-header${narrow ? " site-header-home" : ""}`}><Link href="/" className="site-wordmark" ariaLabel={`${identity.name} home`}>d.</Link><nav aria-label="Primary navigation"><ul>{identity.navigation.map(item => <li key={item.label}><Link href={item.href}>{item.label}</Link></li>)}</ul></nav><button type="button" className="theme-toggle" aria-label={label} onClick={toggle}>{text}</button></header>;
+  const { label, text, toggle } = useThemeContext();
+  const openMenu = () => window.dispatchEvent(new Event(commandMenuEvent));
+  return <header className={`site-header${narrow ? " site-header-home" : ""}`}><Link href="/" className="site-wordmark" ariaLabel={`${identity.name} home`}>d.</Link><nav aria-label="Primary navigation"><ul>{identity.navigation.map(item => <li key={item.label}><Link href={item.href}>{item.label}</Link></li>)}</ul></nav><button type="button" className="menu-trigger" aria-label="Open command menu" aria-keyshortcuts="Meta+K Control+K" onClick={openMenu}><kbd>⌘K</kbd></button><button type="button" className="theme-toggle" aria-label={label} onClick={toggle}>{text}</button></header>;
 }
 
 function ContactLinks() {
   const findSocial = (network: "cal" | "github" | "linkedin" | "x") => identity.socials.find(link => link.network === network)!.href;
-  return <div className="contact-section" id="contact"><Link href={findSocial("cal")} className="contact-cta">Book a call ↗</Link><div className="contact-links"><Link href={findSocial("github")}>GitHub ↗</Link><Link href={findSocial("linkedin")}>LinkedIn ↗</Link><Link href={findSocial("x")}>X ↗</Link></div></div>;
+  const { copied, copy } = useCopyEmail();
+  return <div className="contact-section" id="contact"><Link href={findSocial("cal")} className="contact-cta">Book a call ↗</Link><button type="button" className="copy-email" onClick={copy} aria-label={`Copy email address ${identity.email}`}>{copied ? "Copied" : "Copy email"}</button><span className="visually-hidden" aria-live="polite">{copied ? "Email address copied" : ""}</span><div className="contact-links"><Link href={findSocial("github")}>GitHub ↗</Link><Link href={findSocial("linkedin")}>LinkedIn ↗</Link><Link href={findSocial("x")}>X ↗</Link></div></div>;
 }
 
 function HomeFooter() {
@@ -165,7 +221,16 @@ function InteriorFooter() {
 
 type TextListItem = { title: string; description: string; href: string; image?: string; imageAlt?: string; links?: { label: string; href: string }[] };
 
-type LeetCodeStats = { username: string; total: number; easy: number; medium: number; hard: number };
+type LeetCodeStats = { username: string; total: number; easy: number; medium: number; hard: number; recent?: RecentSolve[] };
+
+const relativeTime = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+function timeAgo(timestamp: number) {
+  const days = Math.round((timestamp - Date.now()) / 86_400_000);
+  if (days > -1) return "Today";
+  if (days > -30) return relativeTime.format(days, "day");
+  if (days > -365) return relativeTime.format(Math.round(days / 30), "month");
+  return relativeTime.format(Math.round(days / 365), "year");
+}
 
 function LeetCodeSection() {
   const [stats, setStats] = useState<LeetCodeStats | null>(null);
@@ -184,13 +249,84 @@ function LeetCodeSection() {
 
   return <section className="section leetcode-section" aria-label="LeetCode statistics">
     <div className="leetcode-heading"><p className="section-label">LeetCode</p><Link href="https://leetcode.com/u/devzshrc/">@devzshrc ↗</Link></div>
-    {stats ? <div className="leetcode-stats" aria-label={`${stats.total} problems solved`}>
-      <div className="leetcode-total"><strong>{stats.total}</strong><span>Solved</span></div>
-      <div><strong>{stats.easy}</strong><span>Easy</span></div>
-      <div><strong>{stats.medium}</strong><span>Medium</span></div>
-      <div><strong>{stats.hard}</strong><span>Hard</span></div>
-    </div> : <p className="leetcode-status" aria-live="polite">{failed ? "Stats temporarily unavailable" : "Loading stats…"}</p>}
+    {stats ? <div className="leetcode-card">
+      <div className="leetcode-summary">
+        <div className="leetcode-total"><strong>{stats.total}</strong><span>problems solved</span></div>
+        <div className="leetcode-breakdown">
+          <div className="difficulty-bar" role="img" aria-label={`${stats.easy} easy, ${stats.medium} medium, ${stats.hard} hard`}>
+            {(["easy", "medium", "hard"] as const).map(level => stats[level] > 0 && <span key={level} data-level={level} style={{ flexGrow: stats[level] }} />)}
+          </div>
+          <dl>{(["easy", "medium", "hard"] as const).map(level => <div key={level} data-level={level}><dt>{level[0]!.toUpperCase() + level.slice(1)}</dt><dd>{stats[level]}</dd></div>)}</dl>
+        </div>
+      </div>
+      {stats.recent && stats.recent.length > 0 && <div className="leetcode-recent">
+        <p>Recently solved</p>
+        <ul>{stats.recent.map(item => <li key={item.slug}><Link href={`https://leetcode.com/problems/${item.slug}/`}>{item.title}</Link><time dateTime={new Date(item.solvedAt).toISOString()}>{timeAgo(item.solvedAt)}</time></li>)}</ul>
+      </div>}
+    </div> : <div className="leetcode-card leetcode-card-empty"><p className="leetcode-status" aria-live="polite">{failed ? "Stats temporarily unavailable" : "Loading stats…"}</p></div>}
   </section>;
+}
+
+function GitHubSection() {
+  const [activity, setActivity] = useState<GitHubActivity | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/github-activity", { signal: controller.signal })
+      .then(response => {
+        if (!response.ok) throw new Error("Activity unavailable");
+        return response.json() as Promise<GitHubActivity>;
+      })
+      .then(setActivity)
+      .catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    return () => controller.abort();
+  }, []);
+  const grid = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (grid.current) grid.current.scrollLeft = grid.current.scrollWidth; }, [activity]);
+  const offset = activity?.days[0] ? new Date(`${activity.days[0].date}T00:00:00Z`).getUTCDay() : 0;
+
+  return <section className="section github-section" aria-label="GitHub activity">
+    <div className="leetcode-heading"><p className="section-label">GitHub</p><Link href="https://github.com/devzshrc">@devzshrc ↗</Link></div>
+    {activity ? <>
+      <div className="contribution-scroll" ref={grid}><div className="contribution-grid" role="img" aria-label={`${activity.total} contributions in the last year`}>
+        {Array.from({ length: offset }, (_, index) => <span key={`pad-${index}`} className="contribution-pad" />)}
+        {activity.days.map((day, index) => {
+          const week = Math.floor((offset + index) / 7);
+          return <span key={day.date} data-level={day.level} style={day.level > 0 ? { animationDelay: `${-(week * 90)}ms` } : undefined} />;
+        })}
+      </div></div>
+      <p className="contribution-total"><strong>{activity.total.toLocaleString("en-US")}</strong> contributions in the last year</p>
+    </> : <p className="leetcode-status" aria-live="polite">{failed ? "Activity temporarily unavailable" : "Loading activity…"}</p>}
+  </section>;
+}
+
+function ExperienceList() {
+  return <div className="experience-list">{experience.map(entry => {
+    const meta = [entry.location, entry.employmentType].filter(Boolean).join(" · ");
+    const companyName = entry.companyHref
+      ? <Link href={entry.companyHref} className="experience-company-link">{entry.company} <span aria-hidden="true">↗</span></Link>
+      : <>{entry.company}</>;
+    const row = <><img src={entry.icon} alt={`${entry.company} logo`} width="40" height="40" /><span className="experience-text"><span className="experience-name">{companyName}</span><span className="experience-role">{entry.role}</span>{meta && <span className="experience-meta">{meta}</span>}</span><time>{entry.period}</time></>;
+    const hasDetail = Boolean(entry.summary || entry.highlights?.length || entry.stack?.length);
+    if (!hasDetail) return <article key={entry.company}>{row}</article>;
+    return <ExperienceItem key={entry.company} row={row} summary={entry.summary} highlights={entry.highlights ?? []} stack={entry.stack} id={`experience-${entry.company.toLowerCase().replace(/\W+/g, "-")}`} />;
+  })}</div>;
+}
+
+function ExperienceItem({ row, summary, highlights, stack, id }: { row: ReactNode; summary?: string; highlights: string[]; stack?: string[]; id: string }) {
+  const [open, setOpen] = useState(false);
+  return <div className="experience-item" data-open={open}>
+    <button type="button" className="experience-toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}>{row}<span className="chevron" aria-hidden="true" /></button>
+    <div className="experience-collapse" id={id} role="region" inert={!open}><div><div className="experience-detail">{summary && <p>{summary}</p>}{highlights.length > 0 && <ul>{highlights.map(item => <li key={item}>{item}</li>)}</ul>}{stack && stack.length > 0 && <ul className="stack-list" aria-label="Technologies used">{stack.map(item => <li key={item}>{item}</li>)}</ul>}</div></div></div>
+  </div>;
+}
+
+function EducationList() {
+  return <div className="education-list">{education.map(entry => <article key={entry.institution} className="education-item"><img src={entry.logo} alt={`${entry.institution} logo`} width="40" height="40" /><span className="experience-text"><span className="experience-name">{entry.institution}</span><span className="experience-role">{entry.degree}</span><span className="experience-meta">{entry.period}</span></span></article>)}</div>;
+}
+
+function SkillsList() {
+  return <dl className="skills-grid">{skills.map(group => <div key={group.category}><dt>{group.category}</dt><dd>{group.items.join(" · ")}</dd></div>)}</dl>;
 }
 
 function TextList({ items, className = "" }: { items: TextListItem[]; className?: string }) {
@@ -201,13 +337,17 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visibleWork = published(work).sort((a, b) => a.order - b.order);
   const visiblePosts = published(posts);
   return <><Metadata route={route} /><Header narrow /><main id="content" className="home-content">
-    <section className="about section"><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
-    <section className="section experience-section"><p className="section-label">Experience</p><div className="experience-list">{experience.map(entry => <article key={entry.company}><img src={entry.icon} alt={`${entry.company} logo`} width="36" height="36" /><div><h2>{entry.company}</h2><p>{entry.role}</p></div><time>{entry.period}</time></article>)}</div></section>
+    <section className="about section"><img className="banner" src={identity.banner} alt={identity.bannerAlt} width="1200" height={675} /><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
+    <section className="section" id="work"><p className="section-label">Proof of work</p><TextList items={visibleWork} className="work-list" /></section>
+    <section className="section experience-section"><p className="section-label">Experience</p><ExperienceList /><p className="section-label education-label">Education</p><EducationList /></section>
+    <section className="section"><p className="section-label">Skills</p><SkillsList /></section>
+    <section className="section"><p className="section-label">Based in</p><LocationMap location="Lucknow, Uttar Pradesh" coordinates="26.8467° N, 80.9462° E" /></section>
+    <section className="section" aria-label="Find a time to talk"><div className="leetcode-heading"><p className="section-label">Find a time</p><span className="section-hint"><span><i data-key="open" />Open for calls</span><span><i data-key="busy" />Busy</span><span><i data-key="you" />Your 9 to 6</span></span></div><FindATime /></section>
     <LeetCodeSection />
+    <GitHubSection />
     <section className="section resume-section"><div><p className="section-label">Resume</p><p>A concise overview of my experience and work.</p></div><Link href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" className="resume-link">View resume ↗</Link></section>
-    <section className="section" id="work"><p className="section-label">Selected work</p><TextList items={visibleWork} className="work-list" /></section>
-    {visiblePosts.length > 0 && <section className="section"><p className="section-label">Blog</p><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
-    <section className="section belief-section"><p className="section-label">firmly believe in -</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>
+    {visiblePosts.length > 0 && <section className="section"><div className="leetcode-heading"><p className="section-label">Writing</p><Link href="/blog">View all ↗</Link></div><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
+    <section className="section belief-section"><p className="section-label">What I believe</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>
     <HomeFooter />
   </main></>;
 }
@@ -258,19 +398,122 @@ function BlogPostPage({ slug, route }: { slug: string; route: ReturnType<typeof 
   return <><Metadata route={route} /><Header /><main id="content" className="resource-detail blog-detail"><article><header className="entry-header"><p className="eyebrow">Blog</p><h1>{post.title}</h1><p>{post.excerpt}</p><p className="entry-date">{post.date}</p></header><img className="resource-hero" src={post.cover} alt={post.coverAlt} width="840" height="500" /><ContentBlocks blocks={post.body} /><Link className="back-link" href="/blog">← Back to blog</Link></article></main><InteriorFooter /></>;
 }
 
+function WorkPage({ slug, route }: { slug: string; route: ReturnType<typeof matchRoute> }) {
+  const entry = findCaseStudy(work, slug);
+  if (!entry?.caseStudy) return <NotFoundPage route={{ kind: "not-found" }} />;
+  const { caseStudy } = entry;
+  const [primary, ...secondary] = entry.links ?? [];
+  return <><Metadata route={route} /><Header /><main id="content" className="resource-detail"><article><header className="entry-header"><p className="eyebrow">Case study</p><h1>{entry.title}</h1><p>{entry.description}</p></header>
+    <dl className="case-meta"><div><dt>Role</dt><dd>{caseStudy.role}</dd></div><div><dt>Year</dt><dd>{caseStudy.year}</dd></div><div><dt>Stack</dt><dd>{caseStudy.stack.join(", ")}</dd></div></dl>
+    {entry.image && <img className="resource-hero" src={entry.image} alt={entry.imageAlt ?? ""} width="840" height="470" />}
+    <ContentBlocks blocks={caseStudy.body} />
+    {primary && <div className="case-actions"><Link className="primary-button" href={primary.href}>Visit {primary.label.toLowerCase()} site ↗</Link>{secondary.map(link => <Link key={link.label} href={link.href}>{link.label} ↗</Link>)}</div>}
+    <Link className="back-link" href="/">← Back home</Link>
+  </article></main><InteriorFooter /></>;
+}
+
 function NotFoundPage({ route }: { route: ReturnType<typeof matchRoute> }) {
   return <><Metadata route={route} /><Header /><main id="content" className="not-found"><p>404</p><h1>That page isn't here.</h1><span>The link may be old, or the page may have moved.</span><Link href="/">Return home →</Link></main><InteriorFooter /></>;
+}
+
+const commandMenuEvent = "app:command-menu";
+
+type Command = { group: string; label: string; hint?: string; run: () => void };
+
+function CommandMenu() {
+  const theme = useThemeContext();
+  const { copy } = useCopyEmail();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+
+  const commands = useMemo<Command[]>(() => {
+    const go = (href: string) => () => navigate(href);
+    const social = (network: string) => identity.socials.find(link => link.network === network)!.href;
+    return [
+      { group: "Pages", label: "Home", run: go("/") },
+      { group: "Pages", label: "Proof of work", run: go("/#work") },
+      ...(published(posts).length ? [{ group: "Pages", label: "Blog", run: go("/blog") }] : []),
+      ...(published(resources).length ? [{ group: "Pages", label: "Resources", run: go("/resources") }] : []),
+      ...published(work).filter(entry => entry.caseStudy).map(entry => ({ group: "Work", label: entry.title, hint: "Case study", run: go(`/work/${entry.caseStudy!.slug}`) })),
+      ...published(posts).map(post => ({ group: "Writing", label: post.title, run: go(postHref(post)) })),
+      { group: "Actions", label: "Copy email address", hint: identity.email, run: copy },
+      { group: "Actions", label: theme.label, run: theme.toggle },
+      { group: "Actions", label: "Book a call", hint: "↗", run: go(social("cal")) },
+      { group: "Links", label: "GitHub", hint: "↗", run: go(social("github")) },
+      { group: "Links", label: "LinkedIn", hint: "↗", run: go(social("linkedin")) },
+      { group: "Links", label: "X", hint: "↗", run: go(social("x")) },
+    ];
+  }, [copy, theme.label, theme.toggle]);
+
+  const results = commands.filter(command => `${command.group} ${command.label}`.toLowerCase().includes(query.trim().toLowerCase()));
+
+  useEffect(() => {
+    const open = () => {
+      setQuery("");
+      setActive(0);
+      if (!dialog.current?.open) dialog.current?.showModal();
+    };
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        if (dialog.current?.open) dialog.current.close();
+        else open();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener(commandMenuEvent, open);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(commandMenuEvent, open);
+    };
+  }, []);
+
+  const run = (command: Command | undefined) => {
+    if (!command) return;
+    dialog.current?.close();
+    command.run();
+  };
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown") { event.preventDefault(); setActive(index => Math.min(index + 1, results.length - 1)); }
+    if (event.key === "ArrowUp") { event.preventDefault(); setActive(index => Math.max(index - 1, 0)); }
+    if (event.key === "Enter") { event.preventDefault(); run(results[active]); }
+  };
+
+  let lastGroup = "";
+  return <dialog ref={dialog} className="command-menu" aria-label="Command menu" onClick={event => { if (event.target === dialog.current) dialog.current.close(); }}>
+    <div className="command-panel">
+      <input autoFocus value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} onKeyDown={onKeyDown} placeholder="Search or jump to…" aria-label="Search commands" role="combobox" aria-expanded="true" aria-controls="command-results" aria-activedescendant={results[active] ? `command-${active}` : undefined} />
+      <ul id="command-results" role="listbox">
+        {results.map((command, index) => {
+          const heading = command.group !== lastGroup ? command.group : null;
+          lastGroup = command.group;
+          return <li key={`${command.group}-${command.label}`} role="presentation">
+            {heading && <p className="command-group" aria-hidden="true">{heading}</p>}
+            <div id={`command-${index}`} role="option" aria-selected={index === active} className="command-item" onMouseMove={() => setActive(index)} onClick={() => run(command)}><span>{command.label}</span>{command.hint && <span className="command-hint">{command.hint}</span>}</div>
+          </li>;
+        })}
+        {!results.length && <li className="command-empty" role="presentation">No results</li>}
+      </ul>
+    </div>
+  </dialog>;
+}
+
+function Page({ route }: { route: ReturnType<typeof matchRoute> }) {
+  if (route.kind === "home") return <HomePage route={route} />;
+  if (route.kind === "blog") return <BlogPage route={route} />;
+  if (route.kind === "post") return <BlogPostPage slug={route.slug} route={route} />;
+  if (route.kind === "work") return <WorkPage slug={route.slug} route={route} />;
+  if (route.kind === "resources") return <ResourcesPage route={route} />;
+  if (route.kind === "resource") return <ResourcePage slug={route.slug} route={route} />;
+  return <NotFoundPage route={route} />;
 }
 
 export function App() {
   const pathname = usePathname();
   const route = useMemo(() => matchRoute(pathname), [pathname]);
-  if (route.kind === "home") return <HomePage route={route} />;
-  if (route.kind === "blog") return <BlogPage route={route} />;
-  if (route.kind === "post") return <BlogPostPage slug={route.slug} route={route} />;
-  if (route.kind === "resources") return <ResourcesPage route={route} />;
-  if (route.kind === "resource") return <ResourcePage slug={route.slug} route={route} />;
-  return <NotFoundPage route={route} />;
+  const theme = useTheme();
+  return <ThemeContext.Provider value={theme}><Page route={route} /><CommandMenu /></ThemeContext.Provider>;
 }
 
 export default App;
