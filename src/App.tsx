@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
-import { education, experience, identity, posts, resources, skills, work, type ContentBlock, type Post, type ResourceItem } from "./content";
+import { education, experience, identity, posts, resources, skills, work, type ContentBlock, type Post, type ResourceItem, type WorkItem } from "./content";
 import type { GitHubActivity } from "./lib/github";
 import type { RecentSolve } from "./lib/leetcode";
 import { findCaseStudy, matchRoute, pageMetadata, postHref, published, resourceHref } from "./lib/site";
@@ -8,7 +8,6 @@ import { isTheme, nextTheme, type Theme } from "./lib/theme";
 import { LocationMap } from "@/components/ui/expand-map";
 import { FindATime } from "@/components/find-a-time";
 import { DiscoverButton } from "@/components/block/discover-button";
-import { HoverImg } from "@/components/block/hover-img";
 import "./index.css";
 
 const themeStorageKey = "portfolio-theme";
@@ -341,12 +340,27 @@ function TextList({ items, className = "" }: { items: TextListItem[]; className?
   return <div className={`text-list ${className}`}>{items.map(item => <article key={item.title}>{item.image && <Link href={item.href} className="work-preview"><img src={item.image} alt={item.imageAlt ?? ""} width="840" height="470" loading="lazy" /></Link>}<h3><Link href={item.href}>{item.title} <span aria-hidden="true">→</span></Link></h3><p>{item.description}</p>{item.links && <div className="work-links">{item.links.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div>}</article>)}</div>;
 }
 
+function ProjectList({ items }: { items: WorkItem[] }) {
+  return <div className="project-list">{items.map(item => {
+    const [name, subtitle] = item.title.split(" — ");
+    return <article className="project-card" key={item.href}>
+      {item.image && <Link href={item.href} className="project-image" ariaLabel={`Read about ${name}`}><img src={item.image} alt={item.imageAlt ?? item.title} width="840" height="470" loading="lazy" /></Link>}
+      <div className="project-content">
+        <div className="project-heading"><div><h3><Link href={item.href}>{name}</Link></h3>{subtitle && <p className="project-subtitle">{subtitle}</p>}</div>{item.caseStudy && <time>{item.caseStudy.year}</time>}</div>
+        <p className="project-description">{item.description}</p>
+        {item.caseStudy && <ul className="project-stack" aria-label={`${name} technologies`}>{item.caseStudy.stack.slice(0, 4).map(tech => <li key={tech}>{tech}</li>)}</ul>}
+        <div className="project-actions"><Link href={item.href} className="project-case-link">View project <span aria-hidden="true">→</span></Link><div>{item.links?.map(link => <Link href={link.href} key={link.label}>{link.label} <span aria-hidden="true">↗</span></Link>)}</div></div>
+      </div>
+    </article>;
+  })}</div>;
+}
+
 function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visibleWork = published(work).sort((a, b) => a.order - b.order);
   const visiblePosts = published(posts);
   return <><Metadata route={route} /><Header narrow /><main id="content" className="home-content">
     <section className="about section"><img className="banner" src={identity.banner} alt={identity.bannerAlt} width="1200" height={675} /><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
-    <section className="section" id="work"><p className="section-label">Proof of work</p><HoverImg className="portfolio-work" projects={visibleWork.map(entry => ({ title: entry.title, label: entry.description, imageSrc: entry.image ?? "", href: entry.href, content: <div className="work-links">{entry.links?.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div> }))} /></section>
+    <section className="section" id="work"><p className="section-label">Proof of work</p><ProjectList items={visibleWork} /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><ExperienceList /><p className="section-label education-label">Education</p><EducationList /></section>
     <section className="section"><p className="section-label">Skills</p><SkillsList /></section>
     <section className="section"><p className="section-label">Based in</p><LocationMap location="Lucknow, Uttar Pradesh" coordinates="26.8467° N, 80.9462° E" /></section>

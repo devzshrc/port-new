@@ -138,7 +138,7 @@ export const identity: SiteIdentity = {
 export const work: WorkItem[] = [
   {
     title: "Docks — AI-assisted code review workspace",
-    description: "I built a full-stack GitHub review workspace that turns pull requests into guided reads, with AI review guides, cross-repository boards, contextual questions, and team workflows.",
+    description: "A GitHub review workspace that turns pull requests into guided reads. AI review guides, cross-repository boards, and team workflows bring the review cycle into one place.",
     href: "/work/docks",
     image: docksScreenshot,
     imageAlt: "Docks landing page: Code review, read in the right order, with a Continue with GitHub button",
@@ -180,7 +180,7 @@ export const work: WorkItem[] = [
   },
   {
     title: "Schema — AI form builder",
-    description: "I designed and built Schema end to end, from the user flows and features to the APIs. It turns a plain-language prompt into a form with questions, field types, validation, and logic.",
+    description: "An AI form builder that turns a plain-language prompt into questions, validation, and conditional logic. Designed and built end to end, from the editor to the APIs.",
     href: "/work/schema",
     image: schemaScreenshot,
     imageAlt: "Schema landing page showing its AI form builder introduction",
