@@ -7,6 +7,8 @@ import { findCaseStudy, matchRoute, pageMetadata, postHref, published, resourceH
 import { isTheme, nextTheme, type Theme } from "./lib/theme";
 import { LocationMap } from "@/components/ui/expand-map";
 import { FindATime } from "@/components/find-a-time";
+import { DiscoverButton } from "@/components/block/discover-button";
+import { HoverImg } from "@/components/block/hover-img";
 import "./index.css";
 
 const themeStorageKey = "portfolio-theme";
@@ -214,7 +216,7 @@ function SocialIcon({ network }: { network: "github" | "linkedin" | "x" }) {
 function ContactLinks() {
   const findSocial = (network: "cal" | "github" | "linkedin" | "x") => identity.socials.find(link => link.network === network)!.href;
   const { copied, copy } = useCopyEmail();
-  return <div className="contact-section" id="contact"><Link href={findSocial("cal")} className="contact-cta">Book a call ↗</Link><button type="button" className="copy-email" onClick={copy} aria-label={`Copy email address ${identity.email}`}>{copied ? "Copied" : "Copy email"}</button><span className="visually-hidden" aria-live="polite">{copied ? "Email address copied" : ""}</span><div className="contact-links"><Link href={findSocial("github")}><SocialIcon network="github" />GitHub ↗</Link><Link href={findSocial("linkedin")}><SocialIcon network="linkedin" />LinkedIn ↗</Link><Link href={findSocial("x")}><SocialIcon network="x" />X ↗</Link></div></div>;
+  return <div className="contact-section" id="contact"><DiscoverButton href={findSocial("cal")} label="Book a call" /><button type="button" className="copy-email" onClick={copy} aria-label={`Copy email address ${identity.email}`}>{copied ? "Copied" : "Copy email"}</button><span className="visually-hidden" aria-live="polite">{copied ? "Email address copied" : ""}</span><div className="contact-links"><Link href={findSocial("github")}><SocialIcon network="github" />GitHub ↗</Link><Link href={findSocial("linkedin")}><SocialIcon network="linkedin" />LinkedIn ↗</Link><Link href={findSocial("x")}><SocialIcon network="x" />X ↗</Link></div></div>;
 }
 
 function HomeFooter() {
@@ -344,14 +346,14 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
   const visiblePosts = published(posts);
   return <><Metadata route={route} /><Header narrow /><main id="content" className="home-content">
     <section className="about section"><img className="banner" src={identity.banner} alt={identity.bannerAlt} width="1200" height={675} /><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
-    <section className="section" id="work"><p className="section-label">Proof of work</p><TextList items={visibleWork} className="work-list" /></section>
+    <section className="section" id="work"><p className="section-label">Proof of work</p><HoverImg className="portfolio-work" projects={visibleWork.map(entry => ({ title: entry.title, label: entry.description, imageSrc: entry.image ?? "", href: entry.href, content: <div className="work-links">{entry.links?.map(link => <Link href={link.href} key={link.label}>{link.label} ↗</Link>)}</div> }))} /></section>
     <section className="section experience-section"><p className="section-label">Experience</p><ExperienceList /><p className="section-label education-label">Education</p><EducationList /></section>
     <section className="section"><p className="section-label">Skills</p><SkillsList /></section>
     <section className="section"><p className="section-label">Based in</p><LocationMap location="Lucknow, Uttar Pradesh" coordinates="26.8467° N, 80.9462° E" /></section>
     <section className="section" aria-label="Find a time to talk"><div className="leetcode-heading"><p className="section-label">Find a time</p><span className="section-hint"><span><i data-key="open" />Open for calls</span><span><i data-key="busy" />Busy</span><span><i data-key="you" />Your 9 to 6</span></span></div><FindATime /></section>
     <LeetCodeSection />
     <GitHubSection />
-    <section className="section resume-section"><div><p className="section-label">Resume</p><p>A concise overview of my experience and work.</p></div><Link href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" className="resume-link">View resume ↗</Link></section>
+    <section className="section resume-section"><div><p className="section-label">Resume</p><p>A concise overview of my experience and work.</p></div><DiscoverButton href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" label="View resume" /></section>
     {visiblePosts.length > 0 && <section className="section"><div className="leetcode-heading"><p className="section-label">Writing</p><Link href="/blog">View all ↗</Link></div><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
     <section className="section belief-section"><p className="section-label">What I believe</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>
     <HomeFooter />
