@@ -350,7 +350,7 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
     <section className="section experience-section"><p className="section-label">Experience</p><ExperienceList /><p className="section-label education-label">Education</p><EducationList /></section>
     <section className="section"><p className="section-label">Skills</p><SkillsList /></section>
     <section className="section"><p className="section-label">Based in</p><LocationMap location="Lucknow, Uttar Pradesh" coordinates="26.8467° N, 80.9462° E" /></section>
-    <section className="section" aria-label="Find a time to talk"><div className="leetcode-heading"><p className="section-label">Find a time</p><span className="section-hint"><span><i data-key="open" />Open for calls</span><span><i data-key="busy" />Busy</span><span><i data-key="you" />Your 9 to 6</span></span></div><FindATime /></section>
+    <section className="section" aria-label="Find a time to talk"><div className="leetcode-heading"><p className="section-label">Find a time</p></div><FindATime /></section>
     <LeetCodeSection />
     <GitHubSection />
     <section className="section resume-section"><div><p className="section-label">Resume</p><p>A concise overview of my experience and work.</p></div><DiscoverButton href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" label="View resume" /></section>
