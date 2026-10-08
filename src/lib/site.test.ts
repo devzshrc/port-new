@@ -13,7 +13,7 @@ describe("portfolio helpers", () => {
   });
 
   test("only shows finished work and hides placeholder content", () => {
-    expect(published(work).map(entry => entry.title)).toEqual(["Schema — AI form builder"]);
+    expect(published(work).map(entry => entry.title)).toEqual(["Docks — AI-assisted code review workspace", "Schema — AI form builder"]);
     expect(published(posts)).toEqual([]);
     expect(published(resources)).toEqual([]);
   });

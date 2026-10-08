@@ -3,6 +3,7 @@ import banner from "./assets/banner.jpg";
 import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
+import docksScreenshot from "./assets/docks-screenshot.png";
 import schemaScreenshot from "./assets/schema-screenshot.png";
 
 export type PublicationStatus = "published" | "draft";
@@ -135,6 +136,48 @@ export const identity: SiteIdentity = {
 };
 
 export const work: WorkItem[] = [
+  {
+    title: "Docks — AI-assisted code review workspace",
+    description: "I built a full-stack GitHub review workspace that turns pull requests into guided reads, with AI review guides, cross-repository boards, contextual questions, and team workflows.",
+    href: "/work/docks",
+    image: docksScreenshot,
+    imageAlt: "Docks landing page: Code review, read in the right order, with a Continue with GitHub button",
+    links: [
+      { label: "Live", href: "https://app.devzshrc.in" },
+      { label: "GitHub", href: "https://github.com/devzshrc/docks" },
+    ],
+    caseStudy: {
+      slug: "docks",
+      role: "Full-stack engineering",
+      year: "2026",
+      stack: ["Next.js 15", "React 19", "Hono", "tRPC v11", "Drizzle", "PostgreSQL", "OpenAI", "Cloudflare Workers"],
+      body: [
+        { type: "heading", text: "The workspace" },
+        { type: "paragraph", text: "Docks brings GitHub code review into one workspace. Cross-repository boards show computed review states and stalled pull requests, with reviewer assignment, review claims, priorities, personal saved views, and shareable URL filters." },
+        { type: "heading", text: "AI-assisted review" },
+        { type: "paragraph", text: "Review guides and contextual PR questions use the OpenAI Responses API. Structured output is validated with Zod, guides are cached per commit, large diffs are split into chunks, and deterministic fallback guides keep reviews usable when generation fails." },
+        { type: "list", items: [
+          "Unified and side-by-side diffs use virtualized rows and Web Worker syntax highlighting, with file blame and Markdown/Mermaid previews. File-SHA-based review progress identifies changes after new commits.",
+          "GitHub review actions support inline comments, thread replies and resolution, approvals, change requests, and merges. Local drafts are preserved, with contextual handoff commands for local coding agents.",
+          "Issue boards include filtered lists, bulk updates, duplicate detection, template-based creation, and comment-to-issue conversion, plus stack-trace code references, assignee suggestions, optional Linear issue creation, and idempotent creation requests.",
+        ] },
+        { type: "heading", text: "Team workflows" },
+        { type: "list", items: [
+          "Team workspaces provide five-role RBAC, expiring invitations, repository restrictions, ownership transfer, data export, and audit logs. Reviewer suggestions use CODEOWNERS, expertise, review history, availability, and workload.",
+          "Review-cycle analytics support repository and team filters, restricted per-person metrics, configurable Slack digests, and weekly reports. Dodo Payments handles per-seat subscriptions, checkout, customer portals, and seat synchronization.",
+        ] },
+        { type: "heading", text: "Architecture and reliability" },
+        { type: "list", items: [
+          "A type-safe pnpm/Turborepo monorepo combines Next.js 15, React 19, Hono, and tRPC v11, separating API contracts, domain logic, and Drizzle/PostgreSQL persistence.",
+          "Better Auth supports GitHub OAuth, email verification, password recovery, TOTP two-factor authentication, and session controls. Webhook signature checks, AES-256-GCM secret encryption, rate limits, and repository-level AI controls protect access.",
+          "Webhook-driven PostgreSQL mirrors and a background job queue use atomic claims, bounded retries, and exponential backoff, alongside layered caching, scheduled access refreshes, and patch-retention cleanup.",
+          "Cloudflare Workers deployment uses OpenNext, Hyperdrive, KV, and cron triggers. GitHub Actions automates migrations and deployment, with domain tests and an AI evaluation harness covering 30 PR fixtures.",
+        ] },
+      ],
+    },
+    order: 0,
+    status: "published",
+  },
   {
     title: "Schema — AI form builder",
     description: "I designed and built Schema end to end, from the user flows and features to the APIs. It turns a plain-language prompt into a form with questions, field types, validation, and logic.",
