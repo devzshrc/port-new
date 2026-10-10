@@ -369,7 +369,6 @@ function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
     <GitHubSection />
     <section className="section resume-section"><div><p className="section-label">Resume</p><p>A concise overview of my experience and work.</p></div><DiscoverButton href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" label="View resume" /></section>
     {visiblePosts.length > 0 && <section className="section"><div className="leetcode-heading"><p className="section-label">Writing</p><Link href="/blog">View all ↗</Link></div><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
-    <section className="section belief-section"><p className="section-label">What I believe</p><blockquote className="about-quote">{identity.biography[1]}</blockquote></section>
     <HomeFooter />
   </main></>;
 }

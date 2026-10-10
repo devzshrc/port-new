@@ -116,7 +116,6 @@ export const identity: SiteIdentity = {
   now: { text: "Building backend and platform systems at Redstring Remote.", updated: "Sep 2026" },
   biography: [
     "I design user flows, build features, and engineer the APIs behind them. At Redstring Remote, I work on backend and platform systems.",
-    "रख देगा झकझोर के तुझे, तूफ़ानों का घोर है डेरा।\nभँवर से गर जो हार मान ले, काहे का फिर ज़ोर है तेरा।",
   ],
   avatar,
   banner,
