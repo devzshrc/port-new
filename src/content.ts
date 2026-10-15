@@ -5,6 +5,7 @@ import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
 import docksScreenshot from "./assets/docks-screenshot.png";
 import schemaScreenshot from "./assets/schema-screenshot.png";
+import ycJobsScreenshot from "./assets/yc-jobs-screenshot.jpg";
 
 export type PublicationStatus = "published" | "draft";
 export type NavigationLink = { label: string; href: string };
@@ -136,6 +137,42 @@ export const identity: SiteIdentity = {
 
 export const work: WorkItem[] = [
   {
+    title: "YC Jobs — startup job search",
+    description: "A fast, private way to search Y Combinator startup jobs. 1,491 hiring companies, in-browser resume matching, salary benchmarks, and an application pipeline — with no accounts and no data collection.",
+    href: "/work/yc-jobs",
+    image: ycJobsScreenshot,
+    imageAlt: "YC Jobs resume-match view in dark mode: ranked startup matches with fit meters and reach-out buttons",
+    links: [
+      { label: "Live", href: "https://yc.devzshrc.in" },
+      { label: "GitHub", href: "https://github.com/devzshrc/yc" },
+    ],
+    caseStudy: {
+      slug: "yc-jobs",
+      role: "Design and engineering",
+      year: "2026",
+      stack: ["Bun", "React 19", "Tailwind CSS v4", "TanStack Charts", "Cloudflare Workers"],
+      body: [
+        { type: "heading", text: "The problem" },
+        { type: "paragraph", text: "Searching YC startup jobs means forty open tabs: company lists in one place, role details in another, salaries somewhere else, and your applications tracked in a spreadsheet. YC Jobs brings the whole hunt into one fast page." },
+        { type: "heading", text: "What it does" },
+        { type: "list", items: [
+          "Browse 1,491 hiring companies with filters for remote, visa sponsorship, location, industry, team size, stage, and batch, plus a roles view and a new-this-week feed.",
+          "Match your resume: PDF parsing and TF-IDF similarity run entirely in the browser and rank companies and roles against your profile.",
+          "Market analytics with salary bands, posting velocity, and ranked breakdowns rendered with TanStack Charts.",
+          "An application pipeline board with per-stage tracking, outreach message drafts, and backup/export of everything.",
+        ] },
+        { type: "heading", text: "Private by design" },
+        { type: "paragraph", text: "There are no accounts and no tracking. Your resume is parsed on your machine and never uploaded — the whole app works as a static deploy with local-only state." },
+        { type: "heading", text: "My role" },
+        { type: "paragraph", text: "I designed and built YC Jobs end to end: the browsing and filtering flows, the resume matcher, the charts, the tracker, and the Cloudflare deployment." },
+        { type: "heading", text: "Outcome" },
+        { type: "paragraph", text: "YC Jobs is live and open source. Try it, or read the code on GitHub." },
+      ],
+    },
+    order: 0,
+    status: "published",
+  },
+  {
     title: "Docks — AI-assisted code review workspace",
     description: "A GitHub review workspace that turns pull requests into guided reads. AI review guides, cross-repository boards, and team workflows bring the review cycle into one place.",
     href: "/work/docks",
@@ -174,7 +211,7 @@ export const work: WorkItem[] = [
         ] },
       ],
     },
-    order: 0,
+    order: 1,
     status: "published",
   },
   {
@@ -208,21 +245,21 @@ export const work: WorkItem[] = [
         { type: "paragraph", text: "Schema is live and open source. Try it, or read the code on GitHub." },
       ],
     },
-    order: 1,
+    order: 2,
     status: "published",
   },
   {
     title: "Portfolio",
     description: "A compact home for product work and useful resources.",
     href: "/resources/portfolio",
-    order: 2,
+    order: 3,
     status: "draft",
   },
   {
     title: "Next product",
     description: "Reserved for a future project.",
     href: "#",
-    order: 2,
+    order: 3,
     status: "draft",
   },
 ];
