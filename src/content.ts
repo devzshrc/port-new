@@ -7,6 +7,17 @@ import docksScreenshot from "./assets/docks-screenshot.png";
 import schemaScreenshot from "./assets/schema-screenshot.png";
 import ycJobsScreenshot from "./assets/yc-jobs-screenshot.png";
 
+import ycLight from "./assets/yc-hero-light.webp";
+import ycDark from "./assets/yc-hero-dark.webp";
+import ycFullLight from "./assets/yc-landing-light.webp";
+import ycFullDark from "./assets/yc-landing-dark.webp";
+import docksLight from "./assets/docks-hero-light.webp";
+import docksDark from "./assets/docks-hero-dark.webp";
+import docksFullLight from "./assets/docks-landing-light.webp";
+import docksFullDark from "./assets/docks-landing-dark.webp";
+import schemaLight from "./assets/schema-hero-light.webp";
+import schemaFullLight from "./assets/schema-landing-light.webp";
+
 export type PublicationStatus = "published" | "draft";
 export type NavigationLink = { label: string; href: string };
 export type SocialLink = { label: string; href: string; network: "github" | "linkedin" | "x" | "instagram" | "cal" };
@@ -41,6 +52,7 @@ export type WorkItem = {
   href: string;
   image?: string;
   imageAlt?: string;
+  landingImages?: { light: string; dark?: string; fullLight: string; fullDark?: string };
   external?: boolean;
   links?: { label: string; href: string }[];
   caseStudy?: CaseStudy;
@@ -141,6 +153,7 @@ export const work: WorkItem[] = [
     description: "A fast, private way to search Y Combinator startup jobs. 1,491 hiring companies, in-browser resume matching, salary benchmarks, and an application pipeline — with no accounts and no data collection.",
     href: "/work/yc-jobs",
     image: ycJobsScreenshot,
+    landingImages: { light: ycLight, dark: ycDark, fullLight: ycFullLight, fullDark: ycFullDark },
     imageAlt: "Orbiter landing page: Your next chapter. Closer than you think.",
     links: [
       { label: "Live", href: "https://yc.devzshrc.in" },
@@ -177,6 +190,7 @@ export const work: WorkItem[] = [
     description: "A GitHub review workspace that turns pull requests into guided reads. AI review guides, cross-repository boards, and team workflows bring the review cycle into one place.",
     href: "/work/docks",
     image: docksScreenshot,
+    landingImages: { light: docksLight, dark: docksDark, fullLight: docksFullLight, fullDark: docksFullDark },
     imageAlt: "Docks landing page: Every pull request, reviewed in the right order.",
     links: [
       { label: "Live", href: "https://app.devzshrc.in" },
@@ -219,6 +233,7 @@ export const work: WorkItem[] = [
     description: "An AI form builder that turns a plain-language prompt into questions, validation, and conditional logic. Designed and built end to end, from the editor to the APIs.",
     href: "/work/schema",
     image: schemaScreenshot,
+    landingImages: { light: schemaLight, fullLight: schemaFullLight },
     imageAlt: "Schema landing page showing its AI form builder introduction",
     links: [
       { label: "Live", href: "https://notyourtypeformx-web.vercel.app/" },

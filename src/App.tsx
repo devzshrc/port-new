@@ -10,6 +10,7 @@ import { FindATime } from "@/components/find-a-time";
 import { DiscoverButton } from "@/components/block/discover-button";
 import "./index.css";
 import "./components/reference-home.css";
+import { ProjectImage } from "./components/project-image";
 import { ReferenceHome } from "./components/reference-home";
 
 const themeStorageKey = "portfolio-theme";
@@ -409,13 +410,14 @@ function BlogPostPage({ slug, route }: { slug: string; route: ReturnType<typeof 
 }
 
 function WorkPage({ slug, route }: { slug: string; route: ReturnType<typeof matchRoute> }) {
+  const theme = useThemeContext();
   const entry = findCaseStudy(work, slug);
   if (!entry?.caseStudy) return <NotFoundPage route={{ kind: "not-found" }} />;
   const { caseStudy } = entry;
   const [primary, ...secondary] = entry.links ?? [];
   return <><Metadata route={route} /><Header /><main id="content" className="resource-detail"><article><header className="entry-header"><p className="eyebrow">Case study</p><h1>{entry.title}</h1><p>{entry.description}</p></header>
     <dl className="case-meta"><div><dt>Role</dt><dd>{caseStudy.role}</dd></div><div><dt>Year</dt><dd>{caseStudy.year}</dd></div><div><dt>Stack</dt><dd>{caseStudy.stack.join(", ")}</dd></div></dl>
-    {entry.image && <img className="resource-hero" src={entry.image} alt={entry.imageAlt ?? ""} width="840" height="470" />}
+    {entry.image && <ProjectImage className="resource-hero" project={entry} theme={theme.theme} full />}
     <ContentBlocks blocks={caseStudy.body} />
     {primary && <div className="case-actions"><Link className="primary-button" href={primary.href}>Visit {primary.label.toLowerCase()} site ↗</Link>{secondary.map(link => <Link key={link.label} href={link.href}>{link.label} ↗</Link>)}</div>}
     <Link className="back-link" href="/">← Back home</Link>

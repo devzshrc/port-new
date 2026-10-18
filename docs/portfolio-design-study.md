@@ -51,3 +51,23 @@ This is a close reconstruction adapted to the owner's content, not an exact sour
 ## Validation
 
 Production build, TypeScript check and existing 16 unit tests pass. Updated the existing publication test's stale expected project list to include the already-published YC Jobs project. Desktop browser QA covers the landing layout and project dialog; responsive rules require separate device confirmation.
+
+## Portrait and project preview refinement — 19 October 2026
+
+The portrait no longer follows the cursor, fades into the background, changes its color treatment, or shows a hat/confetti. It uses an edited photographic asset in a 112px rounded rectangular frame. Click opens an accessible native dialog; the interaction is limited to a subtle border/shadow change.
+
+Portrait asset: `src/assets/devashish-portrait.webp`. Prepared using the built-in imagegen tool; original source remains `src/assets/devashish-profile.jpg`. Final prompt:
+
+> Use case: identity-preserve. Asset type: premium understated personal portfolio portrait. Edit target: the provided selfie photograph of Devashish. Change ONLY the busy environment behind the person to a seamless warm neutral gray studio background with very subtle natural tonal variation, and gently balance lighting. Keep the exact real person and likeness, face shape, skin texture, hair, dark sunglasses, white shirt, black shoulder strap, raised hand and phone, pose and composition unchanged. No new facial features, no face beautification, no retouching skin into plastic. Keep authentic photographic detail. Square composition with whole existing head and shoulders, do not crop tighter than original. Natural editorial photography, subtle and honest, no text, no illustrations, no glow, no border, no vignette, no fading or cutout silhouette. Final asset should look like a clean professionally edited real portrait.
+
+Project previews now use wide browser frames with uncropped 1280×720 hero captures. “Show full page” reveals the entire page at its natural aspect ratio. Clicking a preview opens a scrollable complete-page viewer. Case-study hero images and book preview images also follow the portfolio theme.
+
+Native theme captures:
+
+- Orbiter: separate light and dark hero/full-page WebP files.
+- Docks: separate light and dark hero/full-page WebP files.
+- Schema: native light hero/full-page WebP files. The current public site exposes no theme control or dark stylesheet, so its appearance is preserved and labeled. No artificially inverted screenshots.
+
+Full pages are assembled from overlapping viewport captures to preserve scroll-triggered sections and avoid the browser's full-page capture changing viewport-relative layouts. Docks contains scroll-driven scenes, so those scenes appear as encountered while scrolling. WebP encoding keeps the five full-page captures between approximately 98KB and 420KB. Large captures load on demand with async decoding.
+
+Validation: production build, TypeScript, and 16 tests; browser verification of portrait dialog, theme asset changes, full-page expansion (Orbiter 1280×6076), full-page viewer, and mobile layout at 390×844 without horizontal overflow.
