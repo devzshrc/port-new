@@ -5,7 +5,7 @@ import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
 import docksScreenshot from "./assets/docks-screenshot.png";
 import schemaScreenshot from "./assets/schema-screenshot.png";
-import ycJobsScreenshot from "./assets/yc-jobs-screenshot.jpg";
+import ycJobsScreenshot from "./assets/yc-jobs-screenshot.png";
 
 export type PublicationStatus = "published" | "draft";
 export type NavigationLink = { label: string; href: string };
@@ -141,7 +141,7 @@ export const work: WorkItem[] = [
     description: "A fast, private way to search Y Combinator startup jobs. 1,491 hiring companies, in-browser resume matching, salary benchmarks, and an application pipeline — with no accounts and no data collection.",
     href: "/work/yc-jobs",
     image: ycJobsScreenshot,
-    imageAlt: "YC Jobs resume-match view in dark mode: ranked startup matches with fit meters and reach-out buttons",
+    imageAlt: "Orbiter landing page: Your next chapter. Closer than you think.",
     links: [
       { label: "Live", href: "https://yc.devzshrc.in" },
       { label: "GitHub", href: "https://github.com/devzshrc/yc" },
@@ -177,7 +177,7 @@ export const work: WorkItem[] = [
     description: "A GitHub review workspace that turns pull requests into guided reads. AI review guides, cross-repository boards, and team workflows bring the review cycle into one place.",
     href: "/work/docks",
     image: docksScreenshot,
-    imageAlt: "Docks landing page: Code review, read in the right order, with a Continue with GitHub button",
+    imageAlt: "Docks landing page: Every pull request, reviewed in the right order.",
     links: [
       { label: "Live", href: "https://app.devzshrc.in" },
       { label: "GitHub", href: "https://github.com/devzshrc/docks" },

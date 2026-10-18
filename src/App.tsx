@@ -9,6 +9,8 @@ import { LocationMap } from "@/components/ui/expand-map";
 import { FindATime } from "@/components/find-a-time";
 import { DiscoverButton } from "@/components/block/discover-button";
 import "./index.css";
+import "./components/reference-home.css";
+import { ReferenceHome } from "./components/reference-home";
 
 const themeStorageKey = "portfolio-theme";
 
@@ -356,21 +358,8 @@ function ProjectList({ items }: { items: WorkItem[] }) {
 }
 
 function HomePage({ route }: { route: ReturnType<typeof matchRoute> }) {
-  const visibleWork = published(work).sort((a, b) => a.order - b.order);
-  const visiblePosts = published(posts);
-  return <><Metadata route={route} /><Header narrow /><main id="content" className="home-content">
-    <section className="about section"><img className="banner" src={identity.banner} alt={identity.bannerAlt} width="1200" height={675} /><span className="avatar-frame"><img className="avatar" src={identity.avatar} alt={`${identity.name}, ${identity.role}`} width="100" height="100" /></span><h1>I'm {identity.name}.<br />I build products from interface to API.</h1>{identity.biography.slice(0, 1).map(paragraph => <p key={paragraph}>{paragraph}</p>)}<ContactLinks /></section>
-    <section className="section" id="work"><p className="section-label">Proof of work</p><ProjectList items={visibleWork} /></section>
-    <section className="section experience-section"><p className="section-label">Experience</p><ExperienceList /><p className="section-label education-label">Education</p><EducationList /></section>
-    <section className="section"><p className="section-label">Skills</p><SkillsList /></section>
-    <section className="section"><p className="section-label">Based in</p><LocationMap location="Lucknow, Uttar Pradesh" coordinates="26.8467° N, 80.9462° E" /></section>
-    <section className="section" aria-label="Find a time to talk"><div className="leetcode-heading"><p className="section-label">Find a time</p></div><FindATime /></section>
-    <LeetCodeSection />
-    <GitHubSection />
-    <section className="section resume-section"><div><p className="section-label">Resume</p><p>A concise overview of my experience and work.</p></div><DiscoverButton href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" label="View resume" /></section>
-    {visiblePosts.length > 0 && <section className="section"><div className="leetcode-heading"><p className="section-label">Writing</p><Link href="/blog">View all ↗</Link></div><TextList items={visiblePosts.map(post => ({ title: post.title, description: post.excerpt, href: postHref(post) }))} /></section>}
-    <HomeFooter />
-  </main></>;
+  const theme = useThemeContext();
+  return <><Metadata route={route} /><ReferenceHome theme={theme} extras={<><ExperienceList /><EducationList /><SkillsList /><LocationMap location="Lucknow, Uttar Pradesh" coordinates="26.8467° N, 80.9462° E" /><FindATime /><LeetCodeSection /><GitHubSection /></>} /></>;
 }
 
 function ArchiveCard({ resource }: { resource: ResourceItem }) {
