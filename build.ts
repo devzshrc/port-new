@@ -114,7 +114,7 @@ const headTags = (page: Page) => {
     `<title>${escape(page.title)}</title>`,
     `<meta name="description" content="${escape(page.description)}" />`,
     `<meta name="robots" content="${page.robots ?? "index, follow"}" />`,
-    `<link rel="canonical" href="${url}" />`,
+    ...(page.route === "/404" ? [] : [`<link rel="canonical" href="${url}" />`]),
     `<meta property="og:title" content="${escape(page.title)}" />`,
     `<meta property="og:description" content="${escape(page.description)}" />`,
     `<meta property="og:type" content="${page.type ?? "website"}" />`,
