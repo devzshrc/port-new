@@ -4,8 +4,11 @@
   "main": "worker.ts",
   "compatibility_date": "2026-09-20",
   "routes": ["devzshrc.in/*", "www.devzshrc.in/*"],
+  "vars": { "CONTACT_TO": "devzshrc@gmail.com" },
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page"
   }
 }

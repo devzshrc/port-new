@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { identity, posts, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
-import { findCaseStudy, matchRoute, pageMetadata, postHref, published, resourceHref } from "./lib/site";
+import { findCaseStudy, matchRoute, pageMetadata, postHref, published, readingMinutes, resourceHref } from "./lib/site";
+import { neighbours, publishedPosts, relatedPosts, seriesPart, slugify } from "./lib/posts";
+import { BlogIndex, CodeBlock, PostNav, PostToc, ReadingProgress, RelatedPosts, SubscribeForm } from "./components/post-tools";
+import { MermaidDiagram } from "./components/mermaid-diagram";
+import { AuthorCard, ShareRow } from "./components/post-parts";
 import "./index.css";
 import "./components/reference-home.css";
 import { ReferenceHome } from "./components/reference-home";
@@ -99,6 +103,38 @@ function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
       document.head.appendChild(structuredData);
     }
     structuredData.text = JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: window.location.origin });
+
+    const post = route.kind === "post" ? posts.find(entry => entry.slug === route.slug) : undefined;
+    let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.name = "robots";
+      document.head.appendChild(robots);
+    }
+    robots.content = post?.status === "draft" ? "noindex, nofollow" : "index, follow";
+
+    let article = document.head.querySelector<HTMLScriptElement>("script[data-article-json-ld]");
+    if (post && post.status === "published") {
+      if (!article) {
+        article = document.createElement("script");
+        article.type = "application/ld+json";
+        article.dataset.articleJsonLd = "true";
+        document.head.appendChild(article);
+      }
+      article.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.excerpt,
+        datePublished: new Date(post.date).toISOString(),
+        dateModified: new Date(post.updated ?? post.date).toISOString(),
+        author: { "@type": "Person", name: identity.name },
+        image: new URL(post.cover, window.location.origin).href,
+        url: `${window.location.origin}/blog/${post.slug}`,
+      });
+    } else {
+      article?.remove();
+    }
   }, [metadata.description, metadata.title, shareImage, route]);
   return null;
 }
@@ -125,25 +161,36 @@ function ResourcesPage({ route }: { route: ReturnType<typeof matchRoute> }) {
   return <><Metadata route={route} /><Header /><main id="content" className="archive-page"><header className="archive-heading"><h1>Resources</h1><p>Build notes, guides and useful collections.</p></header><div className="archive-grid">{published(resources).map(resource => <ArchiveCard key={resource.slug} resource={resource} />)}</div></main><InteriorFooter /></>;
 }
 
-function BlogCard({ post }: { post: Post }) {
-  const href = postHref(post);
-  return <article className="archive-card"><Link href={href} className="archive-cover"><img src={post.cover} alt={post.coverAlt} width="840" height="500" loading="lazy" /></Link><div><h2><Link href={href}>{post.title} <span aria-hidden="true">→</span></Link></h2><p>{post.excerpt}</p><small>{post.date}</small></div></article>;
-}
-
 function BlogPage({ route }: { route: ReturnType<typeof matchRoute> }) {
-  if (!published(posts).length) return <NotFoundPage route={{ kind: "not-found" }} />;
-  return <><Metadata route={route} /><Header /><main id="content" className="archive-page"><header className="archive-heading"><h1>Blog</h1><p>Notes on product engineering and building useful software.</p></header><div className="archive-grid">{published(posts).map(post => <BlogCard key={post.slug} post={post} />)}</div></main><InteriorFooter /></>;
+  const entries = published(posts);
+  if (!entries.length) return <NotFoundPage route={{ kind: "not-found" }} />;
+  return <><Metadata route={route} /><main id="content" className="folio writing">
+    <Link className="back-link" href="/">← Home</Link>
+    <header className="project-intro">
+      <h1>Writing</h1>
+      <p>Notes on product engineering and building useful software.</p>
+    </header>
+    <BlogIndex entries={entries} />
+    <SubscribeForm />
+    <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
+  </main></>;
 }
 
 function ContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
   return <div className="entry-content">{blocks.map((block, index) => { const key = `${block.type}-${index}`;
     if (block.type === "paragraph") return <p key={key}>{block.text}</p>;
-    if (block.type === "heading") return <h2 key={key}>{block.text}</h2>;
+    if (block.type === "heading") {
+      const id = slugify(block.text);
+      const anchor = <a className="heading-anchor" href={`#${id}`} aria-label={`Link to ${block.text}`}>#</a>;
+      return block.level === 3
+        ? <h3 key={key} id={id}>{block.text} {anchor}</h3>
+        : <h2 key={key} id={id}>{block.text} {anchor}</h2>;
+    }
     if (block.type === "image") return <img key={key} src={block.src} alt={block.alt} loading="lazy" />;
     if (block.type === "figure") return <figure key={key}><img src={block.src} alt={block.alt} loading="lazy" /><figcaption>{block.caption}</figcaption></figure>;
     if (block.type === "quote") return <blockquote key={key}>{block.text}</blockquote>;
     if (block.type === "list") return <ul key={key}>{block.items.map(item => <li key={item}>{item}</li>)}</ul>;
-    if (block.type === "code") return <figure className="code-block" key={key}>{block.label && <figcaption>{block.label}</figcaption>}<pre><code>{block.code}</code></pre></figure>;
+    if (block.type === "code") return block.label === "mermaid" ? <MermaidDiagram key={key} chart={block.code} /> : <CodeBlock key={key} code={block.code} label={block.label} />;
     if (block.type === "divider") return <hr key={key} />;
     return <aside className="callout" key={key}><h3>{block.title}</h3><p>{block.text}</p>{block.href && <Link href={block.href}>{block.label ?? "Learn more"} →</Link>}</aside>;
   })}</div>;
@@ -156,9 +203,36 @@ function ResourcePage({ slug, route }: { slug: string; route: ReturnType<typeof 
 }
 
 function BlogPostPage({ slug, route }: { slug: string; route: ReturnType<typeof matchRoute> }) {
-  const post = published(posts).find(entry => entry.slug === slug);
+  const preview = new URLSearchParams(window.location.search).has("preview");
+  const post = posts.find(entry => entry.slug === slug && (entry.status === "published" || preview));
   if (!post) return <NotFoundPage route={{ kind: "not-found" }} />;
-  return <><Metadata route={route} /><Header /><main id="content" className="resource-detail blog-detail"><article><header className="entry-header"><p className="eyebrow">Blog</p><h1>{post.title}</h1><p>{post.excerpt}</p><p className="entry-date">{post.date}</p></header><img className="resource-hero" src={post.cover} alt={post.coverAlt} width="840" height="500" /><ContentBlocks blocks={post.body} /><Link className="back-link" href="/blog">← Back to blog</Link></article></main><InteriorFooter /></>;
+  const list = publishedPosts(posts);
+  const { newer, older } = neighbours(post, list);
+  const series = seriesPart(post, list);
+  const project = post.project ? work.find(entry => entry.caseStudy?.slug === post.project) : undefined;
+  return <><Metadata route={route} /><main id="content" className="folio post">
+    <Link className="back-link" href="/blog">← All writing</Link>
+    {post.status === "draft" && <p className="draft-banner">Draft preview. This post is not published.</p>}
+    <header className="post-header">
+      <p className="post-meta">
+        {series && <>Part {series.part} of {series.total} · </>}
+        {post.date}{post.updated && ` · Updated ${post.updated}`} · {readingMinutes(post.body)} min read
+      </p>
+      <h1>{post.title}</h1>
+      <p className="post-summary">{post.excerpt}</p>
+      {project && <p className="post-project">About <a href={`/work/${project.caseStudy?.slug}`}>{project.title}</a></p>}
+      {post.tags && post.tags.length > 0 && <div className="post-tags">{post.tags.map(tag => <span key={tag}>{tag}</span>)}</div>}
+    </header>
+    <img className="post-hero" src={post.cover} alt={post.coverAlt} width="840" height="500" />
+    {post.body.length > 8 && <ReadingProgress />}
+    <PostToc body={post.body} />
+    <div className="project-body post-body"><ContentBlocks blocks={post.body} /></div>
+    <ShareRow title={post.title} />
+    <AuthorCard />
+    <PostNav newer={newer} older={older} />
+    <RelatedPosts items={relatedPosts(post, list)} />
+    <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
+  </main></>;
 }
 
 function WorkPage({ slug, route }: { slug: string; route: ReturnType<typeof matchRoute> }) {
@@ -175,6 +249,27 @@ function WorkPage({ slug, route }: { slug: string; route: ReturnType<typeof matc
     </header>
     {entry.links && <div className="intro-actions">{entry.links.map((link, index) => <a key={link.label} className={index === 0 ? "button-primary" : "pill"} href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a>)}</div>}
     <div className="project-body"><ContentBlocks blocks={caseStudy.body} /></div>
+    {published(posts).some(post => post.project === caseStudy.slug) && <section className="related">
+      <h2 className="section-title">Writing about this project</h2>
+      <ul className="row-list post-list">
+        {published(posts).filter(post => post.project === caseStudy.slug).map(post => <li key={post.slug}>
+          <div className="row-main"><a className="row-title" href={postHref(post)}>{post.title}</a><p>{post.excerpt}</p></div>
+          <time>{post.date}</time>
+        </li>)}
+      </ul>
+    </section>}
+    <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
+  </main></>;
+}
+
+function NowPage({ route }: { route: ReturnType<typeof matchRoute> }) {
+  return <><Metadata route={route} /><main id="content" className="folio writing">
+    <Link className="back-link" href="/">← Home</Link>
+    <header className="project-intro">
+      <h1>Now</h1>
+      <p>{identity.now.text}</p>
+      <p className="project-meta">Updated {identity.now.updated}</p>
+    </header>
     <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
   </main></>;
 }
@@ -189,6 +284,7 @@ function Page({ route }: { route: ReturnType<typeof matchRoute> }) {
   if (route.kind === "post") return <BlogPostPage slug={route.slug} route={route} />;
   if (route.kind === "work") return <WorkPage slug={route.slug} route={route} />;
   if (route.kind === "resources") return <ResourcesPage route={route} />;
+  if (route.kind === "now") return <NowPage route={route} />;
   if (route.kind === "resource") return <ResourcePage slug={route.slug} route={route} />;
   return <NotFoundPage route={route} />;
 }

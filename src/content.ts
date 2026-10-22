@@ -3,6 +3,9 @@ import banner from "./assets/banner.jpg";
 import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
+import inferenceCover from "./assets/inference-cover.webp";
+import inferenceGuide from "./content/posts/inference-engineering.txt" with { type: "text" };
+import { parseMarkdown } from "./lib/markdown";
 
 
 export type PublicationStatus = "published" | "draft";
@@ -23,6 +26,7 @@ export type SiteIdentity = {
   navigation: NavigationLink[];
   socials: SocialLink[];
   footer: string;
+  availability: { timeZone: string; workDays: number[]; hours: { start: number; end: number } };
 };
 
 export type CaseStudy = {
@@ -72,7 +76,7 @@ export type SkillGroup = {
 
 export type ContentBlock =
   | { type: "paragraph"; text: string }
-  | { type: "heading"; text: string }
+  | { type: "heading"; text: string; level?: 2 | 3 }
   | { type: "image"; src: string; alt: string }
   | { type: "figure"; src: string; alt: string; caption: string }
   | { type: "quote"; text: string }
@@ -102,6 +106,10 @@ export type Post = {
   coverAlt: string;
   status: PublicationStatus;
   body: ContentBlock[];
+  tags?: string[];
+  series?: string;
+  updated?: string;
+  project?: string;
 };
 
 export const identity: SiteIdentity = {
@@ -129,6 +137,7 @@ export const identity: SiteIdentity = {
     { label: "Book a call", href: "https://cal.com/de5ash1zh", network: "cal" },
   ],
   footer: "All Rights Reserved.",
+  availability: { timeZone: "Asia/Kolkata", workDays: [0, 1, 2, 3, 4, 5, 6], hours: { start: 0, end: 1440 } },
 };
 
 export const work: WorkItem[] = [
@@ -316,6 +325,18 @@ export const resources: ResourceItem[] = [
 ];
 
 export const posts: Post[] = [
+  {
+    slug: "inference-engineering",
+    title: "Inference Engineering: A Complete Beginner's Guide",
+    excerpt: "A first-principles learning roadmap from zero to advanced, for developers with a backend engineering background.",
+    date: "October 22, 2026",
+    cover: inferenceCover,
+    coverAlt: "Hand-drawn diagram of an LLM: prefill, decode, the KV cache, attention keys and the inference engine",
+    status: "published",
+    tags: ["inference", "llm"],
+    series: "Inference Engineering",
+    body: parseMarkdown(inferenceGuide),
+  },
   {
     slug: "sample-blog",
     title: "Sample blog",

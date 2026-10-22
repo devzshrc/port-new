@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light" />
-    <meta name="description" content="Product work and useful resources from Devashish." />
+    <script>
+      (() => {
+        let theme = "light";
+        try { if (localStorage.getItem("portfolio-theme") === "dark") theme = "dark"; } catch {}
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <meta name="description" content="Product engineering and selected work from Devashish." />
     <meta property="og:title" content="Devashish | Software Engineer" />
-    <meta property="og:description" content="Product work and useful resources from Devashish." />
+    <meta property="og:description" content="Product engineering and selected work from Devashish." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://devzshrc.in/" />
     <meta property="og:image" content="https://devzshrc.in/og.png" />
@@ -16,10 +22,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://devzshrc.in/og.png" />
     <meta name="twitter:title" content="Devashish | Software Engineer" />
-    <meta name="twitter:description" content="Product work and useful resources from Devashish." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" />
+    <meta name="twitter:description" content="Product engineering and selected work from Devashish." />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Devashish | Software Engineer</title>
     <script type="module" src="./frontend.tsx" async></script>

@@ -32,3 +32,18 @@ declare module "*.webp" {
   const path: `${string}.webp`;
   export = path;
 }
+
+declare module "*.txt" {
+  const text: string;
+  export default text;
+}
+
+declare module "shiki/langs/*" {
+  const language: unknown;
+  export default language;
+}
+
+declare module "shiki/themes/*" {
+  const theme: unknown;
+  export default theme;
+}

@@ -1,0 +1,8 @@
+/* Inter variable font, Latin subset, self-hosted (SIL Open Font License). */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-wght.woff2") format("woff2");
+}
