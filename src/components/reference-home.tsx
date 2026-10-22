@@ -1,59 +1,95 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { identity, work } from "../content";
+import { CalendarDays, Globe } from "lucide-react";
+import { EmailButton } from "./email-button";
+import { education, experience, identity, skills, work } from "../content";
 import { published } from "../lib/site";
-import { ProjectImage } from "./project-image";
-import { ArrowUpRight, Expand, X, ExternalLink } from "lucide-react";
 import portraitAsset from "../assets/devashish-portrait.webp";
+import displayPictureAsset from "../assets/dp.png";
 
-type Props = { theme: { theme: string; label: string; toggle: () => void }; extras: ReactNode };
-const notes = ["01 / A quiet introduction|A clean editorial portrait. Natural detail, a simple frame, and room to breathe.", "02 / Room to read|One typeface. A quiet 600px column. Space for the work to speak.", "03 / Ideas, made tangible|Real products. Fresh landing page captures. Open them and explore.", "04 / A closer look|Pick up a cover, drag to turn it, or read the case study.", "05 / It starts here|A good product starts with a conversation."];
-function Note({ index, active }: { index: number; active: boolean }) { const [title, text] = notes[index]!.split("|"); return active ? <aside className="design-note"><strong>{title}</strong><span>{text}</span></aside> : null; }
-const hi = { role: "सॉफ़्टवेयर इंजीनियर, विचारों को आकार देते हुए।", intro: "मैं इंटरफ़ेस से API तक उपयोगी प्रोडक्ट बनाता हूँ। साफ़ अनुभव, भरोसेमंद सिस्टम और हर छोटे विवरण पर ध्यान।", current: "अभी Redstring Remote में बैकएंड और प्लेटफ़ॉर्म सिस्टम पर काम कर रहा हूँ।", end: "मुझे चीज़ों के दिखने जितना ही उनके काम करने की परवाह है। अपने प्रोजेक्ट में मैं डिज़ाइन और इंजीनियरिंग, दोनों को साथ लाता हूँ।" };
-export function ReferenceHome({ theme, extras }: Props) {
-  const [language, setLanguage] = useState("en");
-  const [creative, setCreative] = useState(false);
-  const [clock, setClock] = useState("");
-  const [portraitOpen, setPortraitOpen] = useState(false);
-  const [landingPreview, setLandingPreview] = useState<number | null>(null);
-  const [expandedPages, setExpandedPages] = useState<Set<string>>(() => new Set());
-  const portraitDialog = useRef<HTMLDialogElement>(null);
-  const landingDialog = useRef<HTMLDialogElement>(null);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [angle, setAngle] = useState(-18);
-  const [copied, setCopied] = useState(false);
-  const [credits, setCredits] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const creditDialog = useRef<HTMLDialogElement>(null);
-  const drag = useRef<number | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const projects = published(work).sort((a,b) => a.order - b.order);
-  const hindi = language === "hi";
-  useEffect(() => { const update = () => setClock(new Intl.DateTimeFormat("en-GB", {timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit"}).format(new Date())); update(); const interval = setInterval(update,1000); return () => { clearInterval(interval); clearTimeout(timer.current); }; }, []);
-  useEffect(() => { document.documentElement.lang = language; return () => { document.documentElement.lang = "en"; }; }, [language]);
-  useEffect(() => { if (selected !== null) { dialog.current?.showModal(); setAngle(-18); } }, [selected]);
-  useEffect(() => { if(credits) creditDialog.current?.showModal(); },[credits]);
-  useEffect(() => { if (portraitOpen) portraitDialog.current?.showModal(); }, [portraitOpen]);
-  useEffect(() => { if (landingPreview !== null) landingDialog.current?.showModal(); }, [landingPreview]);
-  const copy = async () => { try { await navigator.clipboard.writeText(identity.email); setCopied(true); clearTimeout(timer.current); timer.current = setTimeout(() => setCopied(false),2200); } catch { window.location.href = `mailto:${identity.email}`; } };
-  const close = () => { dialog.current?.close(); setSelected(null); };
-  return <main id="content" className={`folio ${creative ? "creative" : ""}`}>
-    <header className="folio-bar"><a href="#top" aria-label="Back to top">Lucknow <span>/</span> <time aria-label="Current time in Lucknow">{clock || "GMT+5:30"}</time></a><div><label className="language-control"><span aria-hidden="true">文</span><select aria-label="Language" value={language} onChange={e => setLanguage(e.target.value)}><option value="en">EN</option><option value="hi">HI</option></select></label><span className="bar-divider"/><button className="theme-icon" type="button" aria-label={theme.label} onClick={theme.toggle}>{theme.theme === "dark" ? "☾" : "☼"}</button></div></header>
-    <section id="top" className="folio-intro">
-      <div className="portrait-row"><div className="portrait-wrap"><button type="button" className="portrait" aria-label="View portrait of Devashish" onClick={() => setPortraitOpen(true)}><img src={portraitAsset} alt="Devashish" width="112" height="112"/><span className="portrait-expand" aria-hidden="true"><Expand size={12}/></span></button><Note index={0} active={creative}/></div><div className="hero-aside"><p>{hindi ? "एक-एक विवरण से," : "Building useful things,"}<br/>{hindi ? "बेहतर अनुभव।" : "one detail at a time."}</p><div><button className="creative-switch framed" role="switch" aria-checked={creative} aria-label="Creative mode" onClick={()=>setCreative(!creative)}><span/></button><a className="framed message" href="#contact">{hindi ? "संदेश भेजें" : "Send message"} ↗</a></div></div></div>
-      <div className="intro-title"><h1>{identity.name}</h1><p>{hindi ? hi.role : "Software engineer, building useful things."}</p><Note index={1} active={creative}/></div>
-      <div className="intro-copy"><p>{hindi ? hi.intro : "I turn complex ideas into clear, useful products. From the first user flow to the APIs and systems that make everything work."}</p><p>{hindi ? hi.current : <>Currently building backend and platform systems at <span className="current-company">Redstring Remote</span>. Independently exploring ideas through code and small, thoughtful products.</>}</p><p>{hindi ? hi.end : "I care about how things work as much as how they look. That means designing the interface, engineering what’s behind it, and refining the details until the whole experience feels right."}</p></div>
+const resumeHref = "https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing";
+const contactNetworks = ["instagram", "x", "github", "linkedin", "cal"];
+
+function SocialIcon({ network }: { network: string }) {
+  if (network === "instagram") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r=".6" fill="currentColor" /></svg>;
+  if (network === "github") return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg>;
+  if (network === "linkedin") return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>;
+  if (network === "x") return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" /></svg>;
+  return <CalendarDays size={14} aria-hidden="true" />;
+}
+
+export function ReferenceHome() {
+  const projects = published(work).sort((a, b) => a.order - b.order);
+  const socials = identity.socials.filter(link => contactNetworks.includes(link.network));
+
+  return <main id="content" className="folio">
+    <section id="top" className="intro">
+      <img className="intro-avatar intro-avatar-desktop" src={displayPictureAsset} alt={identity.name} width="100" height="100" />
+      <img className="intro-avatar intro-avatar-mobile" src={portraitAsset} alt={identity.name} width="100" height="100" />
+      <h1>I’m <strong>{identity.name}</strong> -- a software engineer.</h1>
+      <p>I solve problems with software, whether they are my own, someone else's, or everyone's. I have a deep interest in physics, technology, and poetry.</p>
+      <div className="intro-actions">
+        <EmailButton />
+        <a className="pill" href={resumeHref} target="_blank" rel="noreferrer">Resume ↗</a>
+      </div>
     </section>
-    <section id="work" className="folio-section"><div className="folio-section-heading"><h2>{hindi ? "इस्तेमाल के लिए बनाए गए" : "Built to be used"}</h2><span>{hindi ? "स्वतंत्र प्रोजेक्ट" : "Independent work"}</span></div><Note index={2} active={creative}/><div className="product-rows">{projects.map((project,index)=><article className="product-row" key={project.href}>
-        <div className="product-heading"><div><a className="product-name" href={project.href}>{project.title.split(" — ")[0]}</a><p>{["A clearer orbit for your next startup opportunity.","Code review, read in the right order.","Thoughtful forms, built from a single prompt."][index] ?? project.description}</p></div><a className="product-open" href={project.links?.find(l=>l.label === "Live")?.href ?? project.href} target="_blank" rel="noreferrer" aria-label={`Open ${project.title}`}><ArrowUpRight size={18}/></a></div>
-        <div className="landing-frame"><div className="landing-toolbar"><span className="browser-dots" aria-hidden="true"><i/><i/><i/></span><span className="landing-domain">{new URL(project.links?.find(l=>l.label === "Live")?.href ?? "https://devzshrc.in").hostname}</span><button aria-label={`Enlarge ${project.title} landing page`} onClick={()=>setLandingPreview(index)}><Expand size={13}/></button></div><button className="landing-shot" onClick={()=>setLandingPreview(index)} aria-label={`View complete ${project.title} landing page`}><ProjectImage project={project} theme={theme.theme}/></button>{expandedPages.has(project.href) && <div className="landing-expanded"><ProjectImage project={project} theme={theme.theme} full/></div>}</div>
-        <div className="product-caption"><span>{project.caseStudy?.role}{!project.landingImages?.dark ? " · Native light appearance" : ""}</span><button aria-expanded={expandedPages.has(project.href)} onClick={()=>setExpandedPages(current=>{const next=new Set(current);if(next.has(project.href))next.delete(project.href);else next.add(project.href);return next;})}>{expandedPages.has(project.href) ? "Collapse full page" : "Show full page"}<span aria-hidden="true">{expandedPages.has(project.href) ? "−" : "+"}</span></button></div>
-      </article>)}</div></section>
-    <section className="folio-section" id="case-studies"><div className="folio-section-heading"><h2>{hindi ? "निर्माण के पीछे" : "Behind the build"}</h2><a className="quiet-link" href="https://github.com/devzshrc" target="_blank" rel="noreferrer">{hindi ? "सभी प्रोजेक्ट" : "All projects"} ↗</a></div><p className="section-description">{hindi ? "चुने हुए प्रोजेक्ट, विचार से प्रोडक्ट तक।" : "Selected projects. The thinking, the details, and the code."}</p><Note index={3} active={creative}/><div className="cover-shelf">{projects.map((project,index)=><article key={project.href}><button className={`book-cover cover-${index}`} aria-label={`Preview ${project.title}`} onClick={()=>setSelected(index)}><span className="cover-kicker">BUILD NOTES · {String(index+1).padStart(2,"0")}</span><strong>{project.title.split(" — ")[0]!.replace("YC Jobs","YC\nJOBS")}</strong><span className="cover-subtitle">{project.title.split(" — ")[1]}</span><span className="cover-art" aria-hidden="true">{Array.from({length:30},(_,i)=><i key={i} style={{opacity:.25+(i%5)*.18}}>{["✳","↗","⊞"][index%3]!}</i>)}</span><span className="cover-bottom">DEVASHISH <span>2026</span></span><span className="cover-hover">{hindi ? "करीब से देखें" : "Take a closer look"} ↗</span></button><a className="cover-title" href={project.href}>{project.title}</a><p className="cover-meta">Design & engineering · {project.caseStudy?.year}</p></article>)}</div></section>
-    <section className="folio-section" id="about"><h2>{hindi ? "थोड़ा परिचय" : "A little background"}</h2><div className="background-copy"><p>{hindi ? "मैं सॉफ़्टवेयर इंजीनियर हूँ और Lucknow, भारत में रहता हूँ। Redstring Remote में बैकएंड और प्लेटफ़ॉर्म सिस्टम बनाता हूँ।" : "I’m a software engineer based in Lucknow, India. My work moves between product interfaces, backend services, and platform systems. At Redstring Remote, I build the systems behind the experience, while my independent projects give me room to take an idea all the way from a first sketch to a working product."}</p><p>{hindi ? "मेरे प्रोजेक्ट में जॉब सर्च, कोड रिव्यू और फ़ॉर्म बिल्डिंग जैसे रोज़मर्रा के अनुभव शामिल हैं। मुझे सरल, उपयोगी और भरोसेमंद प्रोडक्ट बनाना पसंद है।" : "That’s what connects a startup job search, a guided code review workspace, and an AI form builder: making everyday tools clearer and more useful. I like being able to take an idea into the browser, try an interaction, and keep adjusting it until it feels right."}</p></div><a className="understated-link" href="https://www.linkedin.com/in/devzshrc" target="_blank" rel="noreferrer">{hindi ? "मेरे अनुभव के बारे में" : "More about my experience"} ↗</a><details className="more-details"><summary>{hindi ? "अनुभव, कौशल और गतिविधि" : "Experience, skills & activity"}<span>+</span></summary><div className="retained-details">{extras}<a href="https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing" target="_blank" rel="noreferrer">View resume ↗</a></div></details></section>
-    <footer id="contact" className="folio-section folio-contact"><Note index={4} active={creative}/><h2>{hindi ? "कुछ बनाना चाहते हैं?" : "Have something in mind?"}</h2><p>{hindi ? "अगर आप कोई उपयोगी प्रोडक्ट बना रहे हैं, तो बात करते हैं।" : "If you’re building something useful and care about the details, I’d love to hear about it."}</p><button className="email-button" onClick={copy} aria-label={`Copy email address: ${identity.email}`}>{identity.email} <span>{copied ? "✓" : "⧉"}</span></button><span className="copy-status" role="status">{copied ? "Email copied to clipboard" : ""}</span><nav aria-label="Social profiles">{identity.socials.filter(s=>["github","linkedin","x"].includes(s.network)).map(s=><a key={s.network} href={s.href} target="_blank" rel="noreferrer">{s.label} ↗</a>)}<a href="https://cal.com/de5ash1zh" target="_blank" rel="noreferrer">{hindi ? "कॉल बुक करें" : "Book a call"} ↗</a></nav><div className="folio-colophon"><span>© {new Date().getFullYear()} {identity.name}<br/><span>{hindi ? "Lucknow में ध्यान से बनाया गया।" : "Made with care, in Lucknow."}</span></span><button onClick={()=>setCredits(true)}>{hindi ? "श्रेय" : "Credits"} ↗</button></div></footer>
-    <dialog ref={dialog} className="cover-dialog" aria-label="Project cover preview" onCancel={()=>setSelected(null)} onClose={()=>setSelected(null)} onClick={e=>{if(e.target===dialog.current)close();}}><button className="preview-close" onClick={close} aria-label="Close preview">×</button>{selected !== null && projects[selected] && <div className="preview-layout"><span className="preview-counter">{String(selected+1).padStart(2,"0")} / {String(projects.length).padStart(2,"0")}</span><p className="drag-instruction">Drag to turn</p><div className="book-stage" tabIndex={0} role="slider" aria-label="Rotate project cover" aria-valuemin={-65} aria-valuemax={65} aria-valuenow={Math.round(angle)} onKeyDown={e=>{if(e.key === "ArrowLeft" || e.key === "ArrowRight"){e.preventDefault();setAngle(a=>Math.max(-65,Math.min(65,a+(e.key === "ArrowLeft" ? -10 : 10))));}}} onPointerDown={e=>{drag.current=e.clientX;e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(drag.current !== null){setAngle(a=>Math.max(-65,Math.min(65,a+(e.clientX-drag.current!)*.6)));drag.current=e.clientX;}}} onPointerUp={()=>drag.current=null} onPointerCancel={()=>drag.current=null}><div className={`preview-book cover-${selected}`} style={{transform:`rotateY(${angle}deg) rotateX(5deg)`}}><span>PROJECT NOTES / 2026</span><strong>{projects[selected]!.title.split(" — ")[0]}</strong><ProjectImage project={projects[selected]!} theme={theme.theme}/><span>DESIGNED & BUILT BY DEVASHISH</span></div></div><h2>{projects[selected]!.title}</h2><p>{projects[selected]!.description}</p><a className="framed preview-read" href={projects[selected]!.href}>Read the case study ↗</a><div className="preview-navigation"><button onClick={()=>setSelected((selected+projects.length-1)%projects.length)} aria-label="Previous project">←</button><button onClick={()=>setSelected((selected+1)%projects.length)} aria-label="Next project">→</button></div></div>}</dialog>
-    <dialog ref={portraitDialog} className="portrait-dialog" aria-label="Portrait of Devashish" onClose={()=>setPortraitOpen(false)} onClick={e=>{if(e.target===portraitDialog.current)portraitDialog.current.close();}}><button className="media-close" onClick={()=>portraitDialog.current?.close()} aria-label="Close portrait"><X size={18}/></button><img src={portraitAsset} alt="Devashish" width="800" height="800"/><div><strong>Devashish</strong><span>Software engineer · Lucknow, India</span></div></dialog>
-    <dialog ref={landingDialog} className="landing-dialog" aria-label="Full landing page" onClose={()=>setLandingPreview(null)} onClick={e=>{if(e.target===landingDialog.current)landingDialog.current.close();}}>{landingPreview !== null && projects[landingPreview] && <><header><div><strong>{projects[landingPreview]!.title.split(" — ")[0]}</strong><span>Complete landing page · {theme.theme} portfolio theme</span></div><a href={projects[landingPreview]!.links?.find(l=>l.label === "Live")?.href} target="_blank" rel="noreferrer" aria-label="Open live project"><ExternalLink size={16}/></a><button onClick={()=>landingDialog.current?.close()} aria-label="Close landing page"><X size={18}/></button></header><div className="landing-dialog-scroll"><ProjectImage project={projects[landingPreview]!} theme={theme.theme} full/></div></>}</dialog>
-    <dialog ref={creditDialog} className="credits-dialog" aria-label="Credits" onClose={()=>setCredits(false)} onClick={e=>{if(e.target === creditDialog.current)creditDialog.current.close();}}><button className="preview-close" aria-label="Close credits" onClick={()=>creditDialog.current?.close()}>×</button><h2>Made with care.</h2><p>Design and development by Devashish.</p><p>Layout, creative annotations, and interactive cover treatment inspired by <a href="https://daniasyrofi.com/" target="_blank" rel="noreferrer">Dani Asyrofi ↗</a>.</p><p>Project imagery captured from my live products. Built with React, TypeScript, and Bun.</p></dialog>
+
+    <section id="work" className="section">
+      <h2 className="section-title">Projects</h2>
+      {projects.map(project => {
+        const live = project.links?.find(link => link.label === "Live")?.href;
+        const github = project.links?.find(link => link.label === "GitHub")?.href;
+        return <article className="work-item" key={project.href}>
+          <div className="work-head">
+            <a className="work-title" href={project.href}>{project.title}</a>
+            {project.caseStudy && <time>{project.caseStudy.year}</time>}
+          </div>
+          <p>{project.description}</p>
+          <div className="work-links">
+            {live && <a className="pill" href={live} target="_blank" rel="noreferrer"><Globe size={14} aria-hidden="true" />Live</a>}
+            {github && <a className="pill" href={github} target="_blank" rel="noreferrer"><SocialIcon network="github" />GitHub</a>}
+          </div>
+        </article>;
+      })}
+    </section>
+
+    <section id="experience" className="section">
+      <h2 className="section-title">Experience & education</h2>
+      <ul className="row-list">
+        {experience.map(entry => <li key={entry.company}>
+          <img className="row-logo" src={entry.icon} alt={`${entry.company} logo`} width="28" height="28" />
+          <div className="row-main">
+            <span className="row-title">{entry.companyHref ? <a href={entry.companyHref} target="_blank" rel="noreferrer">{entry.company} ↗</a> : entry.company}</span>
+            <p>{entry.role}</p>
+          </div>
+          <time>{entry.period}</time>
+        </li>)}
+        {education.map(entry => <li key={entry.institution}>
+          <img className="row-logo" src={entry.logo} alt={`${entry.institution} logo`} width="28" height="28" />
+          <div className="row-main">
+            <span className="row-title">{entry.institution}</span>
+            <p>{entry.degree}</p>
+          </div>
+          <time>{entry.period}</time>
+        </li>)}
+      </ul>
+    </section>
+
+    <section className="section">
+      <h2 className="section-title">Skills</h2>
+      <dl className="skills">
+        {skills.map(group => <div key={group.category}>
+          <dt>{group.category}</dt>
+          <dd>{group.items.join(" · ")}</dd>
+        </div>)}
+      </dl>
+    </section>
+
+    <footer id="contact" className="section contact">
+      <h2 className="section-title">Contact</h2>
+      <p>Got an idea? Send me a message. I would love to hear it.</p>
+      <nav className="contact-links" aria-label="Social profiles">
+        {socials.map(link => <a className="pill" key={link.network} href={link.href} target="_blank" rel="noreferrer"><SocialIcon network={link.network} />{link.network === "cal" ? "Book a call" : link.label}</a>)}
+      </nav>
+      <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
+    </footer>
   </main>;
 }
