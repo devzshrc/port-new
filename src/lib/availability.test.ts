@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { bookableStarts, instantFor, nearest, overlapSegments, upcomingDays, within, zoneOffsetMinutes } from "./availability";
+import { bookableStarts, instantFor, nearest, overlapSegments, scheduleAt, upcomingDays, within, zoneOffsetMinutes } from "./availability";
 
 const IST = "Asia/Kolkata";
 
@@ -45,5 +45,29 @@ describe("availability", () => {
     expect(nearest([], 900)).toBeNull();
     expect(within(810, 30, [{ start: 810, end: 1350 }])).toBe(true);
     expect(within(800, 30, [{ start: 810, end: 1350 }])).toBe(false);
+  });
+});
+
+describe("scheduleAt", () => {
+  const schedule = { timeZone: "Asia/Kolkata", workDays: [1, 2, 3, 4, 5], hours: { start: 600, end: 1140 } };
+
+  test("is open inside working hours on a work day", () => {
+    expect(scheduleAt(new Date("2026-10-06T05:30:00Z"), schedule)).toEqual({ open: true });
+  });
+
+  test("is closed before opening and reports today\u2019s opening", () => {
+    const status = scheduleAt(new Date("2026-10-06T02:30:00Z"), schedule);
+    expect(status.open).toBe(false);
+    expect(status.open === false && status.next?.toISOString()).toBe("2026-10-06T04:30:00.000Z");
+  });
+
+  test("is closed after closing and reports the next work day", () => {
+    const status = scheduleAt(new Date("2026-10-06T14:30:00Z"), schedule);
+    expect(status.open === false && status.next?.toISOString()).toBe("2026-10-07T04:30:00.000Z");
+  });
+
+  test("skips the weekend", () => {
+    const status = scheduleAt(new Date("2026-10-10T06:30:00Z"), schedule);
+    expect(status.open === false && status.next?.toISOString()).toBe("2026-10-12T04:30:00.000Z");
   });
 });

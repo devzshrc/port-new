@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { posts, resources, work } from "../content";
-import { findCaseStudy, matchRoute, pageMetadata, published, resourceHref } from "./site";
+import { findCaseStudy, matchRoute, pageMetadata, published, resourceHref, readingMinutes } from "./site";
 
 describe("portfolio helpers", () => {
   test("matches route patterns", () => {
@@ -14,7 +14,7 @@ describe("portfolio helpers", () => {
 
   test("only shows finished work and hides placeholder content", () => {
     expect(published(work).map(entry => entry.title)).toEqual(["YC Jobs", "Docks", "Schema"]);
-    expect(published(posts)).toEqual([]);
+    expect(published(posts).map(entry => entry.slug)).toEqual(["inference-engineering"]);
     expect(published(resources)).toEqual([]);
   });
 
@@ -24,7 +24,7 @@ describe("portfolio helpers", () => {
   });
 
   test("derives metadata from the remaining routes", () => {
-    expect(pageMetadata(matchRoute("/blog/sample-blog"), resources, posts).title).toContain("Page not found");
+    expect(pageMetadata(matchRoute("/blog/sample-blog"), resources, posts).title).toContain("Sample blog");
     expect(pageMetadata(matchRoute("/resources/portfolio"), resources).title).toContain("Page not found");
     expect(pageMetadata(matchRoute("/unknown"), resources).title).toContain("Page not found");
   });
@@ -36,5 +36,13 @@ describe("case studies", () => {
     expect(findCaseStudy(work, "schema")?.title).toBe("Schema");
     expect(findCaseStudy(work, "missing")).toBeUndefined();
     expect(pageMetadata(matchRoute("/work/schema"), resources, posts, work).title).toContain("Schema");
+  });
+});
+
+describe("reading time", () => {
+  test("rounds up and never shows less than one minute", () => {
+    expect(readingMinutes([{ type: "paragraph", text: "Short note." }])).toBe(1);
+    const long = Array.from({ length: 401 }, () => "word").join(" ");
+    expect(readingMinutes([{ type: "paragraph", text: long }])).toBe(3);
   });
 });

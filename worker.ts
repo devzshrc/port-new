@@ -1,15 +1,11 @@
 import { githubActivity } from "./src/lib/github";
+import { handleContact, type ContactEnv } from "./src/lib/contact";
+import { handleSubscribe, type SubscribeEnv } from "./src/lib/subscribe";
 import { leetcodeStats } from "./src/lib/leetcode";
 
-type WorkerEnv = {
+type WorkerEnv = ContactEnv & SubscribeEnv & {
   ASSETS: { fetch(request: Request): Promise<Response> };
 };
-
-async function assets(request: Request, env: WorkerEnv) {
-  const response = await env.ASSETS.fetch(request);
-  if (response.status !== 404 || !request.headers.get("accept")?.includes("text/html")) return response;
-  return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
-}
 
 export default {
   fetch(request: Request, env: WorkerEnv) {
@@ -17,9 +13,15 @@ export default {
     if (url.pathname === "/api/leetcode-stats") {
       return leetcodeStats(request);
     }
+    if (url.pathname === "/api/subscribe") {
+      return handleSubscribe(request, env);
+    }
+    if (url.pathname === "/api/contact") {
+      return handleContact(request, env);
+    }
     if (url.pathname === "/api/github-activity") {
       return githubActivity(request);
     }
-    return assets(request, env);
+    return env.ASSETS.fetch(request);
   },
 };

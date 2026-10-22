@@ -83,3 +83,17 @@ export const within = (start: number, duration: number, windows: Window[]) =>
   windows.some(window => start >= window.start && start + duration <= window.end);
 
 export const roundUp = (minutes: number, step: number) => Math.ceil(minutes / step) * step;
+
+export type Schedule = { timeZone: string; workDays: number[]; hours: Window };
+
+/** Whether the schedule is open at `now`; when closed, the next opening instant (or null if there are no work days). */
+export function scheduleAt(now: Date, schedule: Schedule) {
+  const { timeZone, workDays, hours } = schedule;
+  const today = dateInZone(timeZone, now);
+  const minutes = minutesInZone(timeZone, now);
+  if (workDays.includes(weekday(today)) && minutes >= hours.start && minutes < hours.end) return { open: true as const };
+  const next = upcomingDays(now, timeZone, workDays, 8)
+    .map(date => instantFor(date, hours.start, timeZone))
+    .find(instant => instant > now);
+  return { open: false as const, next: next ?? null };
+}
