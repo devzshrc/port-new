@@ -13,7 +13,7 @@ describe("portfolio helpers", () => {
   });
 
   test("only shows finished work and hides placeholder content", () => {
-    expect(published(work).map(entry => entry.title)).toEqual(["YC Jobs — startup job search", "Docks — AI-assisted code review workspace", "Schema — AI form builder"]);
+    expect(published(work).map(entry => entry.title)).toEqual(["YC Jobs", "Docks", "Schema"]);
     expect(published(posts)).toEqual([]);
     expect(published(resources)).toEqual([]);
   });
@@ -33,7 +33,7 @@ describe("portfolio helpers", () => {
 describe("case studies", () => {
   test("routes work slugs to published case studies", () => {
     expect(matchRoute("/work/schema")).toEqual({ kind: "work", slug: "schema" });
-    expect(findCaseStudy(work, "schema")?.title).toBe("Schema — AI form builder");
+    expect(findCaseStudy(work, "schema")?.title).toBe("Schema");
     expect(findCaseStudy(work, "missing")).toBeUndefined();
     expect(pageMetadata(matchRoute("/work/schema"), resources, posts, work).title).toContain("Schema");
   });

@@ -3,20 +3,7 @@ import banner from "./assets/banner.jpg";
 import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
-import docksScreenshot from "./assets/docks-screenshot.png";
-import schemaScreenshot from "./assets/schema-screenshot.png";
-import ycJobsScreenshot from "./assets/yc-jobs-screenshot.png";
 
-import ycLight from "./assets/yc-hero-light.webp";
-import ycDark from "./assets/yc-hero-dark.webp";
-import ycFullLight from "./assets/yc-landing-light.webp";
-import ycFullDark from "./assets/yc-landing-dark.webp";
-import docksLight from "./assets/docks-hero-light.webp";
-import docksDark from "./assets/docks-hero-dark.webp";
-import docksFullLight from "./assets/docks-landing-light.webp";
-import docksFullDark from "./assets/docks-landing-dark.webp";
-import schemaLight from "./assets/schema-hero-light.webp";
-import schemaFullLight from "./assets/schema-landing-light.webp";
 
 export type PublicationStatus = "published" | "draft";
 export type NavigationLink = { label: string; href: string };
@@ -50,9 +37,6 @@ export type WorkItem = {
   title: string;
   description: string;
   href: string;
-  image?: string;
-  imageAlt?: string;
-  landingImages?: { light: string; dark?: string; fullLight: string; fullDark?: string };
   external?: boolean;
   links?: { label: string; href: string }[];
   caseStudy?: CaseStudy;
@@ -125,7 +109,7 @@ export const identity: SiteIdentity = {
   role: "Software Engineer",
   location: "India",
   domain: "devzshrc.in",
-  email: "devzshrcz@gmail.com",
+  email: "devzshrc@gmail.com",
   now: { text: "Building backend and platform systems at Redstring Remote.", updated: "Sep 2026" },
   biography: [
     "I design user flows, build features, and engineer the APIs behind them. At Redstring Remote, I work on backend and platform systems.",
@@ -149,12 +133,9 @@ export const identity: SiteIdentity = {
 
 export const work: WorkItem[] = [
   {
-    title: "YC Jobs — startup job search",
-    description: "A fast, private way to search Y Combinator startup jobs. 1,491 hiring companies, in-browser resume matching, salary benchmarks, and an application pipeline — with no accounts and no data collection.",
+    title: "YC Jobs",
+    description: "Find jobs at Y Combinator startups in one place. Check your resume against each job and keep your applications organized. Your resume stays on your device.",
     href: "/work/yc-jobs",
-    image: ycJobsScreenshot,
-    landingImages: { light: ycLight, dark: ycDark, fullLight: ycFullLight, fullDark: ycFullDark },
-    imageAlt: "Orbiter landing page: Your next chapter. Closer than you think.",
     links: [
       { label: "Live", href: "https://yc.devzshrc.in" },
       { label: "GitHub", href: "https://github.com/devzshrc/yc" },
@@ -166,19 +147,19 @@ export const work: WorkItem[] = [
       stack: ["Bun", "React 19", "Tailwind CSS v4", "TanStack Charts", "Cloudflare Workers"],
       body: [
         { type: "heading", text: "The problem" },
-        { type: "paragraph", text: "Searching YC startup jobs means forty open tabs: company lists in one place, role details in another, salaries somewhere else, and your applications tracked in a spreadsheet. YC Jobs brings the whole hunt into one fast page." },
+        { type: "paragraph", text: "Looking for a startup job is messy. You open forty tabs. Company lists are in one place, job details in another, salaries somewhere else, and your applications in a spreadsheet. YC Jobs puts all of it on one fast page." },
         { type: "heading", text: "What it does" },
         { type: "list", items: [
-          "Browse 1,491 hiring companies with filters for remote, visa sponsorship, location, industry, team size, stage, and batch, plus a roles view and a new-this-week feed.",
-          "Match your resume: PDF parsing and TF-IDF similarity run entirely in the browser and rank companies and roles against your profile.",
-          "Market analytics with salary bands, posting velocity, and ranked breakdowns rendered with TanStack Charts.",
-          "An application pipeline board with per-stage tracking, outreach message drafts, and backup/export of everything.",
+          "Browse 1,491 companies that are hiring. Filter by remote work, visa sponsorship, location, industry, team size, stage, and batch.",
+          "Check your resume. The app reads your PDF and ranks the companies and jobs that fit you best.",
+          "See the numbers. Charts show salary ranges, how fast new jobs appear, and more.",
+          "Track your applications. A board shows each stage, with message drafts and a way to back up your data.",
         ] },
-        { type: "heading", text: "Private by design" },
-        { type: "paragraph", text: "There are no accounts and no tracking. Your resume is parsed on your machine and never uploaded — the whole app works as a static deploy with local-only state." },
-        { type: "heading", text: "My role" },
-        { type: "paragraph", text: "I designed and built YC Jobs end to end: the browsing and filtering flows, the resume matcher, the charts, the tracker, and the Cloudflare deployment." },
-        { type: "heading", text: "Outcome" },
+        { type: "heading", text: "Your data" },
+        { type: "paragraph", text: "There are no accounts and no tracking. Your resume is read on your own device and is never uploaded." },
+        { type: "heading", text: "My part" },
+        { type: "paragraph", text: "I designed and built YC Jobs from start to finish. That includes the search, the resume matching, the charts, the tracker, and the Cloudflare setup." },
+        { type: "heading", text: "Result" },
         { type: "paragraph", text: "YC Jobs is live and open source. Try it, or read the code on GitHub." },
       ],
     },
@@ -186,12 +167,9 @@ export const work: WorkItem[] = [
     status: "published",
   },
   {
-    title: "Docks — AI-assisted code review workspace",
-    description: "A GitHub review workspace that turns pull requests into guided reads. AI review guides, cross-repository boards, and team workflows bring the review cycle into one place.",
+    title: "Docks",
+    description: "A place to review code on GitHub. It sorts your pull requests, and AI writes a short guide that explains each change.",
     href: "/work/docks",
-    image: docksScreenshot,
-    landingImages: { light: docksLight, dark: docksDark, fullLight: docksFullLight, fullDark: docksFullDark },
-    imageAlt: "Docks landing page: Every pull request, reviewed in the right order.",
     links: [
       { label: "Live", href: "https://app.devzshrc.in" },
       { label: "GitHub", href: "https://github.com/devzshrc/docks" },
@@ -202,26 +180,27 @@ export const work: WorkItem[] = [
       year: "2026",
       stack: ["Next.js 15", "React 19", "Hono", "tRPC v11", "Drizzle", "PostgreSQL", "OpenAI", "Cloudflare Workers"],
       body: [
-        { type: "heading", text: "The workspace" },
-        { type: "paragraph", text: "Docks brings GitHub code review into one workspace. Cross-repository boards show computed review states and stalled pull requests, with reviewer assignment, review claims, priorities, personal saved views, and shareable URL filters." },
-        { type: "heading", text: "AI-assisted review" },
-        { type: "paragraph", text: "Review guides and contextual PR questions use the OpenAI Responses API. Structured output is validated with Zod, guides are cached per commit, large diffs are split into chunks, and deterministic fallback guides keep reviews usable when generation fails." },
+        { type: "heading", text: "The idea" },
+        { type: "paragraph", text: "Docks puts GitHub code reviews in one place. You can see which pull requests are stuck, who is reviewing them, and what needs attention first. You can save your own views and share links that keep your filters." },
+        { type: "heading", text: "AI help" },
+        { type: "paragraph", text: "Docks asks the OpenAI API to write review guides. Each guide is checked for the right shape and saved for each commit. Big changes are split into smaller parts. If the AI fails, a simple backup guide still loads." },
+        { type: "heading", text: "Reviewing code" },
         { type: "list", items: [
-          "Unified and side-by-side diffs use virtualized rows and Web Worker syntax highlighting, with file blame and Markdown/Mermaid previews. File-SHA-based review progress identifies changes after new commits.",
-          "GitHub review actions support inline comments, thread replies and resolution, approvals, change requests, and merges. Local drafts are preserved, with contextual handoff commands for local coding agents.",
-          "Issue boards include filtered lists, bulk updates, duplicate detection, template-based creation, and comment-to-issue conversion, plus stack-trace code references, assignee suggestions, optional Linear issue creation, and idempotent creation requests.",
+          "Read changes side by side or in one column. Code is coloured so it is easy to read.",
+          "Leave comments, reply to threads, approve, or ask for changes. Your drafts are saved as you type.",
+          "Track issues in lists, edit many at once, and turn a comment into an issue.",
         ] },
-        { type: "heading", text: "Team workflows" },
+        { type: "heading", text: "For teams" },
         { type: "list", items: [
-          "Team workspaces provide five-role RBAC, expiring invitations, repository restrictions, ownership transfer, data export, and audit logs. Reviewer suggestions use CODEOWNERS, expertise, review history, availability, and workload.",
-          "Review-cycle analytics support repository and team filters, restricted per-person metrics, configurable Slack digests, and weekly reports. Dodo Payments handles per-seat subscriptions, checkout, customer portals, and seat synchronization.",
+          "Teams get roles, invites, and access rules. Admins can see audit logs and export data.",
+          "Reviewer suggestions use code owners, past reviews, and who has time. Weekly reports show how reviews are going.",
         ] },
-        { type: "heading", text: "Architecture and reliability" },
+        { type: "heading", text: "How it is built" },
         { type: "list", items: [
-          "A type-safe pnpm/Turborepo monorepo combines Next.js 15, React 19, Hono, and tRPC v11, separating API contracts, domain logic, and Drizzle/PostgreSQL persistence.",
-          "Better Auth supports GitHub OAuth, email verification, password recovery, TOTP two-factor authentication, and session controls. Webhook signature checks, AES-256-GCM secret encryption, rate limits, and repository-level AI controls protect access.",
-          "Webhook-driven PostgreSQL mirrors and a background job queue use atomic claims, bounded retries, and exponential backoff, alongside layered caching, scheduled access refreshes, and patch-retention cleanup.",
-          "Cloudflare Workers deployment uses OpenNext, Hyperdrive, KV, and cron triggers. GitHub Actions automates migrations and deployment, with domain tests and an AI evaluation harness covering 30 PR fixtures.",
+          "One monorepo holds the web app, the API, and the database code. Each part stays separate.",
+          "Sign-in uses GitHub with email checks and two-factor login. Secrets are encrypted and requests are rate limited.",
+          "Background jobs keep GitHub data in sync and retry safely when something fails.",
+          "It runs on Cloudflare Workers. GitHub Actions handles database changes and deploys. Tests include 30 sample pull requests for the AI.",
         ] },
       ],
     },
@@ -229,12 +208,9 @@ export const work: WorkItem[] = [
     status: "published",
   },
   {
-    title: "Schema — AI form builder",
-    description: "An AI form builder that turns a plain-language prompt into questions, validation, and conditional logic. Designed and built end to end, from the editor to the APIs.",
+    title: "Schema",
+    description: "An AI form builder. Describe the form you need in plain words, and it writes the questions, checks, and skip rules for you.",
     href: "/work/schema",
-    image: schemaScreenshot,
-    landingImages: { light: schemaLight, fullLight: schemaFullLight },
-    imageAlt: "Schema landing page showing its AI form builder introduction",
     links: [
       { label: "Live", href: "https://notyourtypeformx-web.vercel.app/" },
       { label: "GitHub", href: "https://github.com/devzshrc/notyourtypeformx" },
@@ -246,17 +222,17 @@ export const work: WorkItem[] = [
       stack: ["Next.js", "tRPC", "Express", "Drizzle", "Zod"],
       body: [
         { type: "heading", text: "The problem" },
-        { type: "paragraph", text: "Building a good form is slow. You decide on the questions, pick the right field type for each, add validation, and wire up logic that skips questions that don't apply. Most of that work is mechanical once you know what you want to ask." },
-        { type: "heading", text: "The approach" },
-        { type: "paragraph", text: "Schema starts from a plain-language prompt. You describe the form you need, and it returns a structured draft: questions, field types, validation rules, and conditional logic, ready to edit rather than build." },
+        { type: "paragraph", text: "Making a good form takes a long time. You pick the questions, choose the field types, add checks, and set up skip rules. Most of that work is repeated every time." },
+        { type: "heading", text: "How it works" },
+        { type: "paragraph", text: "You describe the form in plain words. Schema gives you a draft with questions, field types, checks, and skip rules. You can edit everything it makes." },
         { type: "list", items: [
-          "A typed form schema is the single source of truth, so generated and hand-edited forms behave the same way.",
-          "The model's output is validated against that schema before it reaches the editor, so a bad generation fails safely.",
-          "Everything generated stays editable. The prompt gives you a head start, not a locked result.",
+          "One clear form format is used for both AI-made and hand-made forms, so they work the same way.",
+          "The AI's answer is checked before it reaches the editor. A bad answer fails safely.",
+          "Everything can be edited. The prompt is a head start.",
         ] },
-        { type: "heading", text: "My role" },
-        { type: "paragraph", text: "I designed and built Schema end to end: the user flows, the editor and form features, and the APIs behind them." },
-        { type: "heading", text: "Outcome" },
+        { type: "heading", text: "My part" },
+        { type: "paragraph", text: "I designed and built Schema from start to finish. That includes the user flows, the editor, and the APIs behind them." },
+        { type: "heading", text: "Result" },
         { type: "paragraph", text: "Schema is live and open source. Try it, or read the code on GitHub." },
       ],
     },
