@@ -1,7 +1,7 @@
 import tailwind from "bun-plugin-tailwind";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { identity, posts, resources, work } from "./src/content";
+import { homeTitle, identity, posts, profileLinks, resources, work } from "./src/content";
 
 const site = "https://devzshrc.in";
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -19,11 +19,11 @@ type Page = {
 };
 
 const defaultImage = `${site}/og.png`;
-const person = { "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: site };
+const person = { "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: site, sameAs: profileLinks() };
 
 // Pages that exist as their own HTML file. Drafts are included with noindex so previews work on the live site.
 const pages: Page[] = [
-  { route: "/", title: "Devashish | Software Engineer", description: "Product engineering and selected work from Devashish.", jsonLd: person },
+  { route: "/", title: homeTitle, description: "Product engineering and selected work from Devashish.", jsonLd: person },
   { route: "/blog", title: "Blog | Devashish", description: "Notes on product engineering and building useful software." },
   { route: "/now", title: "Now | Devashish", description: identity.now.text },
   ...work.filter(entry => entry.caseStudy).map(entry => ({ route: `/work/${entry.caseStudy!.slug}`, title: `${entry.title} | Devashish`, description: entry.description })),

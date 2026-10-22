@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
-import { identity, posts, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
+import { homeTitle, identity, posts, profileLinks, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
 import { findCaseStudy, matchRoute, pageMetadata, postHref, published, readingMinutes, resourceHref } from "./lib/site";
 import { neighbours, publishedPosts, relatedPosts, seriesPart, slugify } from "./lib/posts";
 import { BlogIndex, CodeBlock, PostNav, PostToc, ReadingProgress, RelatedPosts, SubscribeForm } from "./components/post-tools";
@@ -102,7 +102,7 @@ function Metadata({ route }: { route: ReturnType<typeof matchRoute> }) {
       structuredData.dataset.siteJsonLd = "true";
       document.head.appendChild(structuredData);
     }
-    structuredData.text = JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: window.location.origin });
+    structuredData.text = JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: window.location.origin, sameAs: profileLinks() });
 
     const post = route.kind === "post" ? posts.find(entry => entry.slug === route.slug) : undefined;
     let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');

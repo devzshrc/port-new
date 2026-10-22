@@ -112,6 +112,12 @@ export type Post = {
   project?: string;
 };
 
+/** Public profiles for structured data (sameAs): every social link except the booking link. */
+export const profileLinks = () => identity.socials.filter(link => link.network !== "cal").map(link => link.href);
+
+/** Homepage title: name, role and the work it's known for. */
+export const homeTitle = "Devashish: Software Engineer, AI tools and backend systems";
+
 export const identity: SiteIdentity = {
   name: "Devashish",
   role: "Software Engineer",
@@ -143,7 +149,7 @@ export const identity: SiteIdentity = {
 export const work: WorkItem[] = [
   {
     title: "YC Jobs",
-    description: "Find jobs at Y Combinator startups in one place. Check your resume against each job and keep your applications organized. Your resume stays on your device.",
+    description: "Search 1,491 hiring Y Combinator startups in one place, match your resume against each role, and track your applications. Your resume stays on your device.",
     href: "/work/yc-jobs",
     links: [
       { label: "Live", href: "https://yc.devzshrc.in" },
@@ -177,7 +183,7 @@ export const work: WorkItem[] = [
   },
   {
     title: "Docks",
-    description: "A place to review code on GitHub. It sorts your pull requests, and AI writes a short guide that explains each change.",
+    description: "A GitHub code review workspace. It sorts pull requests into boards, and AI writes a short guide that explains each change.",
     href: "/work/docks",
     links: [
       { label: "Live", href: "https://app.devzshrc.in" },
