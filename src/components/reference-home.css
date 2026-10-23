@@ -66,9 +66,11 @@
 .project-body { margin-top: 32px; }
 .project-body .entry-content > * { max-width: none; }
 .project-body .entry-content p { margin: 0 0 12px; color: var(--secondary); font-size: 15px; line-height: 1.6; }
-.project-body .entry-content h2 { margin: 28px 0 10px; color: var(--tertiary); font-size: 12px; font-weight: 600; line-height: 1.6; }
-.project-body .entry-content ul { margin: 0 0 12px; padding-left: 18px; color: var(--secondary); font-size: 15px; line-height: 1.6; list-style: disc; }
-.project-body .entry-content li { margin-bottom: 6px; }
+.project-body .entry-content h2 { margin: 36px 0 12px; padding-top: 18px; border-top: 1px solid var(--hairline); color: var(--strong); font-size: 18px; font-weight: 500; line-height: 1.35; letter-spacing: -.01em; }
+.project-body .entry-content h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.project-body .entry-content h3 { margin: 20px 0 8px; color: var(--tertiary); font-size: 14px; font-weight: 600; line-height: 1.4; }
+.project-body .entry-content ul { margin: 0 0 14px; padding-left: 18px; color: var(--secondary); font-size: 14px; line-height: 1.65; list-style: disc; }
+.project-body .entry-content li { margin-bottom: 5px; }
 .project-body .entry-content li::marker { color: var(--faint); }
 .row-logo[alt="Redstring logo"] { filter: invert(1) hue-rotate(180deg); }
 
