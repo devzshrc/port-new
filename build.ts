@@ -1,7 +1,7 @@
 import tailwind from "bun-plugin-tailwind";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { homeTitle, identity, posts, profileLinks, resources, work } from "./src/content";
+import { homeDescription, homeTitle, identity, posts, profileLinks, resources, work } from "./src/content";
 
 const site = "https://devzshrc.in";
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -23,9 +23,10 @@ const person = { "@context": "https://schema.org", "@type": "Person", name: iden
 
 // Pages that exist as their own HTML file. Drafts are included with noindex so previews work on the live site.
 const pages: Page[] = [
-  { route: "/", title: homeTitle, description: "Product engineering and selected work from Devashish.", jsonLd: person },
+  { route: "/", title: homeTitle, description: homeDescription, jsonLd: person },
   { route: "/blog", title: "Blog | Devashish", description: "Notes on product engineering and building useful software." },
   { route: "/now", title: "Now | Devashish", description: identity.now.text },
+  { route: "/design-system", title: "Design system | Devashish", description: "The colours, type, motion and accessibility rules behind this site." },
   ...work.filter(entry => entry.caseStudy).map(entry => ({ route: `/work/${entry.caseStudy!.slug}`, title: `${entry.title} | Devashish`, description: entry.description })),
   ...posts.map(post => ({
     route: `/blog/${post.slug}`,

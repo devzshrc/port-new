@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { homeTitle, identity, posts, profileLinks, resources, work, type ContentBlock, type Post, type ResourceItem } from "./content";
+import { DesignSystemContent } from "./components/design-system";
 import { findCaseStudy, matchRoute, pageMetadata, postHref, published, readingMinutes, resourceHref } from "./lib/site";
 import { neighbours, publishedPosts, relatedPosts, seriesPart, slugify } from "./lib/posts";
 import { BlogIndex, CodeBlock, PostNav, PostToc, ReadingProgress, RelatedPosts, SubscribeForm } from "./components/post-tools";
@@ -274,6 +275,14 @@ function NowPage({ route }: { route: ReturnType<typeof matchRoute> }) {
   </main></>;
 }
 
+function DesignSystemPage({ route }: { route: ReturnType<typeof matchRoute> }) {
+  return <><Metadata route={route} /><main id="content" className="folio writing design-system">
+    <Link className="back-link" href="/">← Home</Link>
+    <DesignSystemContent />
+    <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
+  </main></>;
+}
+
 function NotFoundPage({ route }: { route: ReturnType<typeof matchRoute> }) {
   return <><Metadata route={route} /><Header /><main id="content" className="not-found"><p>404</p><h1>That page isn't here.</h1><span>The link may be old, or the page may have moved.</span><Link href="/">Return home →</Link></main><InteriorFooter /></>;
 }
@@ -285,6 +294,7 @@ function Page({ route }: { route: ReturnType<typeof matchRoute> }) {
   if (route.kind === "work") return <WorkPage slug={route.slug} route={route} />;
   if (route.kind === "resources") return <ResourcesPage route={route} />;
   if (route.kind === "now") return <NowPage route={route} />;
+  if (route.kind === "design-system") return <DesignSystemPage route={route} />;
   if (route.kind === "resource") return <ResourcePage slug={route.slug} route={route} />;
   return <NotFoundPage route={route} />;
 }

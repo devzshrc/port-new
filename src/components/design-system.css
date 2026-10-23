@@ -1,0 +1,19 @@
+/* Design system page: plain reference styles that reuse the site's own tokens. */
+.design-system .ds-section { margin-top: 48px; }
+.design-system .ds-list { margin: 0; padding-left: 18px; }
+.design-system .ds-list li + li { margin-top: 8px; }
+.design-system .ds-list code { font-size: 12px; }
+.design-system .ds-swatches { padding: 0; list-style: none; display: grid; gap: 14px; }
+.design-system .ds-swatches li { display: flex; align-items: center; gap: 12px; }
+.design-system .ds-swatch { flex: none; width: 28px; height: 28px; border-radius: 3px; border: 1px solid var(--hairline); }
+.design-system .ds-swatch + .ds-swatch { margin-left: -12px; }
+.design-system .ds-swatch-name { margin: 0; color: var(--strong); font-size: 14px; font-weight: 500; }
+.design-system .ds-meta { margin: 2px 0 0; color: var(--faint); font-size: 12px; }
+.design-system .ds-meta code { font-size: 12px; }
+.design-system .ds-stack { display: grid; gap: 16px; }
+.design-system .ds-stack > p { margin: 0; }
+.design-system .ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.design-system .ds-type-title { color: var(--strong); font-size: 20px; font-weight: 500; line-height: 1.4; }
+.design-system .ds-type-body { font-size: 15px; line-height: 1.6; }
+.design-system .ds-type-small { color: var(--tertiary); font-size: 13px; }
+.design-system .ds-type-label { color: var(--tertiary); font-size: 12px; font-weight: 600; }

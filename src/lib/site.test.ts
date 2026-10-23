@@ -6,6 +6,7 @@ describe("portfolio helpers", () => {
   test("matches route patterns", () => {
     expect(matchRoute("/")).toEqual({ kind: "home" });
     expect(matchRoute("/blog/")).toEqual({ kind: "blog" });
+    expect(matchRoute("/design-system")).toEqual({ kind: "design-system" });
     expect(matchRoute("/blog/sample-blog")).toEqual({ kind: "post", slug: "sample-blog" });
     expect(matchRoute("/resources/")).toEqual({ kind: "resources" });
     expect(matchRoute("/resources/example")).toEqual({ kind: "resource", slug: "example" });
