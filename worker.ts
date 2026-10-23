@@ -10,6 +10,9 @@ type WorkerEnv = ContactEnv & SubscribeEnv & {
 export default {
   fetch(request: Request, env: WorkerEnv) {
     const url = new URL(request.url);
+    if (url.hostname === "www.devzshrc.in") {
+      return Response.redirect(`https://devzshrc.in${url.pathname}${url.search}`, 301);
+    }
     if (url.pathname === "/api/leetcode-stats") {
       return leetcodeStats(request);
     }

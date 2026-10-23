@@ -7,7 +7,7 @@ import { AvailabilityStatus } from "./availability-status";
 import { ContactForm } from "./contact-form";
 import { ThemeToggle } from "./theme-toggle";
 import { LeetCodeWidget } from "./leetcode-widget";
-import { education, experience, identity, posts, skills, work } from "../content";
+import { designSkills, education, experience, identity, posts, skills, work } from "../content";
 import { published } from "../lib/site";
 import portraitAsset from "../assets/devashish-portrait.webp";
 import displayPictureAsset from "../assets/display-picture.webp";
@@ -25,7 +25,10 @@ function SocialIcon({ network }: { network: string }) {
 }
 
 export function ReferenceHome() {
-  const skillItems = skills.flatMap(group => group.items);
+  const skillSets = [
+    { label: "Product design", items: designSkills.flatMap(group => group.items) },
+    { label: "Engineering", items: skills.flatMap(group => group.items) },
+  ];
   const [bannerReady, setBannerReady] = useState(false);
   const projects = published(work).sort((a, b) => a.order - b.order);
   const socials = identity.socials.filter(link => contactNetworks.includes(link.network));
@@ -35,8 +38,8 @@ export function ReferenceHome() {
     <section id="top" className="intro">
       <img className="intro-avatar intro-avatar-desktop" src={displayPictureAsset} alt={identity.name} width="100" height="100" />
       <img className="intro-avatar intro-avatar-mobile" src={portraitAsset} alt={identity.name} width="100" height="100" />
-      <h1>I’m <strong>{identity.name}</strong> -- a software engineer.</h1>
-      <p>I solve problems with software, whether they are my own, someone else's, or everyone's. I have a deep interest in physics, technology, and poetry.</p>
+      <h1>I’m <strong>{identity.name}</strong> -- a product designer and software engineer.</h1>
+      <p>I design the flows people use and build the features and APIs behind them, whether the problem is my own, someone else's, or everyone's. I have a deep interest in physics, technology, and poetry.</p>
       <AvailabilityStatus />
       <div className="intro-actions">
         <EmailButton />
@@ -111,21 +114,24 @@ export function ReferenceHome() {
 
     <section className="section">
       <h2 className="section-title">Skills</h2>
-      <div className="skill-marquee">
-        <div className="skill-track">
-          <ul className="skill-set">
-            {skillItems.map(item => <li className="skill-chip" key={item}><TechLogo name={item} /><span>{item}</span></li>)}
-          </ul>
-          <ul className="skill-set" aria-hidden="true">
-            {skillItems.map(item => <li className="skill-chip" key={item}><TechLogo name={item} /><span>{item}</span></li>)}
-          </ul>
+      {skillSets.map(set => <div className="skill-group" key={set.label}>
+        <p className="skill-group-title">{set.label}</p>
+        <div className="skill-marquee">
+          <div className="skill-track">
+            <ul className="skill-set">
+              {set.items.map(item => <li className="skill-chip" key={item}><TechLogo name={item} /><span>{item}</span></li>)}
+            </ul>
+            <ul className="skill-set" aria-hidden="true">
+              {set.items.map(item => <li className="skill-chip" key={item}><TechLogo name={item} /><span>{item}</span></li>)}
+            </ul>
+          </div>
         </div>
-      </div>
+      </div>)}
     </section>
 
     <footer id="contact" className="section contact">
       <h2 className="section-title">Contact</h2>
-      <p>Got an idea? Send me a message. I would love to hear it.</p>
+      <p>Hiring for a product design role, or have something to build? Send me a message. I would love to hear it.</p>
       <ContactForm />
       <nav className="contact-links" aria-label="Social profiles">
         {socials.map(link => <a className="pill" key={link.network} href={link.href} target="_blank" rel="noreferrer"><SocialIcon network={link.network} />{link.network === "cal" ? "Book a call" : link.label}</a>)}
@@ -138,6 +144,7 @@ export function ReferenceHome() {
             <li><a href="#experience">Experience</a></li>
             {published(posts).length > 0 && <li><a href="/blog">Writing</a></li>}
             <li><a href="/now">Now</a></li>
+            <li><a href="/design-system">Design system</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
         </div>

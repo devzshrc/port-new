@@ -1,4 +1,4 @@
-import { identity, type ContentBlock, type Post, type PublicationStatus, type ResourceItem, type WorkItem } from "../content";
+import { homeDescription, homeTitle, identity, type ContentBlock, type Post, type PublicationStatus, type ResourceItem, type WorkItem } from "../content";
 
 export type RouteMatch =
   | { kind: "home" }
@@ -8,12 +8,14 @@ export type RouteMatch =
   | { kind: "resources" }
   | { kind: "resource"; slug: string }
   | { kind: "now" }
+  | { kind: "design-system" }
   | { kind: "not-found" };
 
 export function matchRoute(pathname: string): RouteMatch {
   const path = pathname.replace(/\/+$/, "") || "/";
   if (path === "/") return { kind: "home" };
   if (path === "/blog") return { kind: "blog" };
+  if (path === "/design-system") return { kind: "design-system" };
   const post = path.match(/^\/blog\/([^/]+)$/);
   if (post) return { kind: "post", slug: decodeURIComponent(post[1]!) };
   const work = path.match(/^\/work\/([^/]+)$/);
@@ -43,7 +45,8 @@ export function findCaseStudy(allWork: WorkItem[], slug: string) {
 
 export function pageMetadata(route: RouteMatch, allResources: ResourceItem[], allPosts: Post[] = [], allWork: WorkItem[] = []) {
   const suffix = "Devashish";
-  if (route.kind === "home") return { title: `${suffix} | Software Engineer`, description: "Product engineering and selected work from Devashish." };
+  if (route.kind === "home") return { title: homeTitle, description: homeDescription };
+  if (route.kind === "design-system") return { title: `Design system | ${suffix}`, description: "The colours, type, motion and accessibility rules behind this site." };
   if (route.kind === "blog") return { title: `Blog | ${suffix}`, description: "Notes on product engineering and building useful software." };
   if (route.kind === "post") {
     const post = allPosts.find(entry => entry.slug === route.slug);

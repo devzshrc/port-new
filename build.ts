@@ -1,7 +1,7 @@
 import tailwind from "bun-plugin-tailwind";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { identity, posts, resources, work } from "./src/content";
+import { homeDescription, homeTitle, identity, posts, profileLinks, resources, work } from "./src/content";
 
 const site = "https://devzshrc.in";
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -19,13 +19,14 @@ type Page = {
 };
 
 const defaultImage = `${site}/og.png`;
-const person = { "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: site };
+const person = { "@context": "https://schema.org", "@type": "Person", name: identity.name, jobTitle: identity.role, address: { "@type": "PostalAddress", addressCountry: identity.location }, url: site, sameAs: profileLinks() };
 
 // Pages that exist as their own HTML file. Drafts are included with noindex so previews work on the live site.
 const pages: Page[] = [
-  { route: "/", title: "Devashish | Software Engineer", description: "Product engineering and selected work from Devashish.", jsonLd: person },
+  { route: "/", title: homeTitle, description: homeDescription, jsonLd: person },
   { route: "/blog", title: "Blog | Devashish", description: "Notes on product engineering and building useful software." },
   { route: "/now", title: "Now | Devashish", description: identity.now.text },
+  { route: "/design-system", title: "Design system | Devashish", description: "The colours, type, motion and accessibility rules behind this site." },
   ...work.filter(entry => entry.caseStudy).map(entry => ({ route: `/work/${entry.caseStudy!.slug}`, title: `${entry.title} | Devashish`, description: entry.description })),
   ...posts.map(post => ({
     route: `/blog/${post.slug}`,
@@ -94,8 +95,8 @@ for (const output of result.outputs) {
 }
 
 const indexPath = path.join(outdir, "index.html");
-const fontLinks = `<link rel="preload" href="/fonts/inter-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/fonts/inter.css" />`;
+const fontLinks = `<link rel="preload" href="/fonts/geist-sans-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/geist.css" />`;
 const template = (await readFile(indexPath, "utf8")).replaceAll('href="./', 'href="/').replaceAll('src="./', 'src="/').replace("</head>", `    ${fontLinks}
   </head>`);
 
@@ -114,7 +115,7 @@ const headTags = (page: Page) => {
     `<title>${escape(page.title)}</title>`,
     `<meta name="description" content="${escape(page.description)}" />`,
     `<meta name="robots" content="${page.robots ?? "index, follow"}" />`,
-    `<link rel="canonical" href="${url}" />`,
+    ...(page.route === "/404" ? [] : [`<link rel="canonical" href="${url}" />`]),
     `<meta property="og:title" content="${escape(page.title)}" />`,
     `<meta property="og:description" content="${escape(page.description)}" />`,
     `<meta property="og:type" content="${page.type ?? "website"}" />`,
