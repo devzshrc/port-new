@@ -27,8 +27,8 @@ export function DesignSystemContent() {
       <h2 className="section-title">Type</h2>
       <div className="ds-stack">
         <p className="ds-type-title">Page title, 20px, medium</p>
-        <p className="ds-type-body">Body text, 15px with a 1.6 line height. Long reading lines stay near 650px wide.</p>
-        <p className="ds-type-small">Small text, 13px, for captions, dates and footers.</p>
+        <p className="ds-type-body">Body text, 16px with a 1.6 line height. Long reading lines stay near 650px wide.</p>
+        <p className="ds-type-small">Small text, 14px, for captions, dates and footers.</p>
         <p className="ds-type-label">Section label, 12px, semibold</p>
       </div>
     </section>
