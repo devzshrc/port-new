@@ -125,7 +125,7 @@ export const identity: SiteIdentity = {
   role: "Product Designer and Software Engineer",
   location: "India",
   domain: "devzshrc.in",
-  email: "devzshrc@gmail.com",
+  email: "work@devzshrc.in",
   now: { text: "Building backend and platform systems at Redstring Remote.", updated: "Sep 2026" },
   biography: [
     "I design user flows, build features, and engineer the APIs behind them. At Redstring Remote, I work on backend and platform systems.",

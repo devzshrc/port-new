@@ -4,7 +4,7 @@
   "main": "worker.ts",
   "compatibility_date": "2026-09-20",
   "routes": ["devzshrc.in/*", "www.devzshrc.in/*"],
-  "vars": { "CONTACT_TO": "devzshrc@gmail.com" },
+  "vars": { "CONTACT_TO": "work@devzshrc.in" },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
