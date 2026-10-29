@@ -24,7 +24,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
     setStatus("loading");
     import("mermaid")
       .then(async ({ default: mermaid }) => {
-        mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme, fontFamily: "Geist, sans-serif", fontSize: 14 });
+        mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme, fontFamily: "Inter Variable, sans-serif", fontSize: 14 });
         const { svg: output } = await mermaid.render(`mermaid-${id}-${Date.now()}`, chart.trim());
         if (!cancelled) {
           setSvg(output);

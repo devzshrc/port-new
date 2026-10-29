@@ -13,7 +13,7 @@ import portraitAsset from "../assets/devashish-portrait.webp";
 import displayPictureAsset from "../assets/display-picture.webp";
 import bannerAsset from "../assets/banner-hero.webp";
 
-const resumeHref = "https://drive.google.com/file/d/1UNLChy2Si6ciUFf_FRjimbbAB5RyQc5e/view?usp=sharing";
+const resumeHref = "https://drive.google.com/file/d/1mFI0npxaQoAviFdw-UizALbHv8zFBCo_/view?usp=sharing";
 const contactNetworks = ["instagram", "x", "github", "linkedin", "cal"];
 
 function SocialIcon({ network }: { network: string }) {

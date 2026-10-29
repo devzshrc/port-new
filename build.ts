@@ -95,8 +95,8 @@ for (const output of result.outputs) {
 }
 
 const indexPath = path.join(outdir, "index.html");
-const fontLinks = `<link rel="preload" href="/fonts/geist-sans-variable.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/fonts/geist.css" />`;
+const fontLinks = `<link rel="preload" href="/fonts/inter-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/inter.css" />`;
 const template = (await readFile(indexPath, "utf8")).replaceAll('href="./', 'href="/').replaceAll('src="./', 'src="/').replace("</head>", `    ${fontLinks}
   </head>`);
 
