@@ -20,8 +20,24 @@ export function GitHubHeatmap() {
 
   if (!activity) return <p className="heatmap-status" aria-live="polite">{failed ? "Activity temporarily unavailable" : "Loading activity…"}</p>;
 
-  return <>
-    <HeatmapCalendar title="Contributions" data={activity.days.map(day => ({ date: day.date, value: day.level }))} axisLabels yearSelector />
-    <p className="heatmap-total"><strong>{activity.total.toLocaleString("en-US")}</strong> contributions in the last year</p>
-  </>;
+  const activeDays = activity.days.filter(day => day.level > 0).length;
+  let streak = 0;
+  let longestStreak = 0;
+  let previous = 0;
+  for (const day of [...activity.days].sort((a, b) => a.date.localeCompare(b.date))) {
+    const date = Date.parse(`${day.date}T00:00:00Z`);
+    streak = day.level > 0 ? (date - previous === 86_400_000 ? streak + 1 : 1) : 0;
+    longestStreak = Math.max(longestStreak, streak);
+    previous = date;
+  }
+
+  return <div className="github-activity">
+    <div className="github-activity-head"><p>Contribution activity <span>· Last year</span></p><a href={`https://github.com/${activity.username}`} target="_blank" rel="noreferrer">View GitHub <span aria-hidden="true">↗</span><span className="visually-hidden"> (opens in new tab)</span></a></div>
+    <dl className="github-stats">
+      <div><dt>Contributions</dt><dd>{activity.total.toLocaleString("en-US")}</dd></div>
+      <div><dt>Active days</dt><dd>{activeDays.toLocaleString("en-US")}</dd></div>
+      <div><dt>Longest streak</dt><dd>{longestStreak} <span>days</span></dd></div>
+    </dl>
+    <HeatmapCalendar data={activity.days.map(day => ({ date: day.date, value: day.level }))} />
+  </div>;
 }
