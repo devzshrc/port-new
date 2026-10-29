@@ -52,7 +52,7 @@ export async function handleContact(request: Request, env: ContactEnv) {
     method: "POST",
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
     body: JSON.stringify({
-      from: "Portfolio <onboarding@resend.dev>",
+      from: "Portfolio <contact@replies.devzshrc.in>",
       to: [env.CONTACT_TO],
       reply_to: input.email,
       subject: `Portfolio message from ${input.name}`,
