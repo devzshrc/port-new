@@ -1,4 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap");
+@font-face {
+  font-family: "Geist Serif";
+  src: url("../node_modules/geist/dist/fonts/geist-serif/GeistSerifVF.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 @import "tailwindcss";
 
 
@@ -29,7 +35,7 @@
   --gutter: clamp(20px, 5vw, 32px);
   --ease: cubic-bezier(.25, .1, .25, 1);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --font: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font: "Geist Serif", Georgia, serif;
 }
 
 /* Dark theme. Light is the default; the attribute is set before first paint (see index.html). */
