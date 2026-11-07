@@ -13,6 +13,11 @@ declare module "*.png" {
   export = path;
 }
 
+declare module "*.gif" {
+  const path: `${string}.gif`;
+  export = path;
+}
+
 declare module "*.jpg" {
   const path: `${string}.jpg`;
   export = path;

@@ -51,13 +51,13 @@ export function ContactForm() {
       </div>
       <div className="field">
         <label htmlFor="contact-message">Message</label>
-        <textarea id="contact-message" name="message" maxLength={limits.message} value={values.message} onChange={update("message")} aria-invalid={Boolean(errors.message)} aria-describedby="contact-message-error" />
+        <textarea rows={2} id="contact-message" name="message" maxLength={limits.message} value={values.message} onChange={update("message")} aria-invalid={Boolean(errors.message)} aria-describedby="contact-message-error" />
         <p id="contact-message-error" className="field-error" data-visible={Boolean(errors.message)}>{errors.message ?? ""}</p>
       </div>
       {/* Honeypot: hidden from people and screen readers, a bot will fill it in. */}
       <input className="contact-hp" name="website" tabIndex={-1} autoComplete="off" value={values.website} onChange={update("website")} aria-hidden="true" />
       <div className="contact-actions">
-        <button type="submit" className="button-primary" disabled={sending}>{sending ? "Sending…" : "Send message"}</button>
+        <button type="submit" className="button-primary" disabled={sending}>{sending ? "Sending…" : "Send"}</button>
       </div>
       <p className="field-error form-status" data-visible={status === "error"} role="status">Something went wrong. Your message is still here, so try again or email me directly.</p>
     </form>

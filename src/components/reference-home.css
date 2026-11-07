@@ -10,11 +10,21 @@
 :where(.folio a) { color: var(--strong); transition: color 200ms var(--ease); }
 :where(.folio a:hover) { color: var(--link); }
 
-.intro { margin-top: 0; margin-bottom: 96px; }
+.intro { margin-top: 0; margin-bottom: 48px; }
 .intro-avatar { position: relative; width: 100px; height: 100px; margin: -50px 0 28px 12px; box-shadow: 0 0 0 4px var(--page); border-radius: 8px; object-fit: cover; }
 .intro-avatar-mobile { display: none; }
 .intro h1 { margin: 0; color: var(--strong); font-size: 26px; font-weight: 500; line-height: 1.3; letter-spacing: -.01em; text-wrap: balance; }
 .intro h1 strong { color: var(--strong); font-weight: 500; }
+.selection-label { position: relative; display: inline-block; }
+.selection-frame { position: absolute; inset: -2px; z-index: 2; border: 1px solid #2864f0; opacity: 0; pointer-events: none; }
+.selection-frame i { position: absolute; width: 7px; height: 7px; border: 1px solid #2864f0; background: var(--page); }
+.selection-frame i:nth-child(1) { top: -4px; left: -4px; }
+.selection-frame i:nth-child(2) { top: -4px; right: -4px; }
+.selection-frame i:nth-child(3) { bottom: -4px; left: -4px; }
+.selection-frame i:nth-child(4) { bottom: -4px; right: -4px; }
+.selection-size { position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 3px 7px; border-radius: 4px; background: #2864f0; color: white; font: 12px/1.3 ui-monospace, monospace; white-space: nowrap; }
+@media (hover: hover) and (pointer: fine) { .selection-label:hover .selection-frame { opacity: 1; } }
+.selection-label:focus-within .selection-frame { opacity: 1; }
 .intro p { margin: 16px 0 0; font-size: 16px; line-height: 1.6; }
 
 .intro-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
@@ -23,6 +33,7 @@
 
 .section { margin-top: 48px; }
 .section-title { margin: 0 0 14px; color: var(--tertiary); font-size: 12px; font-weight: 600; line-height: 1.6; }
+
 
 .work-item + .work-item { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--hairline); }
 .work-title { display: inline-block; color: var(--strong); font-size: 16px; font-weight: 500; line-height: 1.4; }
@@ -194,17 +205,6 @@
   .field-error, .contact-sent { transform: none; }
 }
 
-/* Footer columns: a quiet site map above the copyright, in the same column and type scale as the page. */
-.footer-columns { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--hairline); }
-.footer-columns ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.footer-columns a { color: var(--secondary); font-size: 14px; }
-.footer-columns a:hover { color: var(--link); }
-.footer-heading { margin-bottom: 12px; color: var(--tertiary); font-size: 12px; font-weight: 600; }
-@media (max-width: 560px) {
-  .footer-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-
 /* Theme toggle: the icon fades and scales in from 0.9 over 150ms when it changes. */
 .theme-icon { animation: theme-icon-in 150ms var(--ease-out) both; }
 @keyframes theme-icon-in { from { opacity: 0; transform: scale(0.9); } }
@@ -319,3 +319,41 @@ figure.code-block { position: relative; }
   .folio.post > .post-toc { grid-column: 1; grid-row: 1 / span 40; position: sticky; top: 96px; margin: 0; padding: 0; border: 0; }
   .folio.post > .post-toc .post-toc-list { max-height: calc(100vh - 160px); }
 }
+
+.work-preview { display: block; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--surface); }
+.work-preview img { display: block; width: 100%; height: auto; aspect-ratio: 36 / 25; object-fit: cover; object-position: top; }
+
+/* Compact hero actions and native, swipeable project carousel. */
+.hero-links { flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: thin; padding-bottom: 4px; }
+.hero-links > a { flex: 0 0 auto; padding-inline: 12px; white-space: nowrap; }
+.project-carousel-head { margin-bottom: 14px; align-items: center; }
+.project-carousel-head .section-title { margin: 0; }
+.project-controls { display: flex; align-items: center; gap: 6px; }
+.project-count { margin-right: 6px; color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+.project-controls button { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--hairline); border-radius: 4px; background: var(--surface); color: var(--strong); cursor: pointer; }
+.project-controls button:disabled { opacity: .35; cursor: default; }
+.project-carousel { position: relative; display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+.project-carousel::-webkit-scrollbar { display: none; }
+.project-carousel .project-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.project-carousel .work-item + .work-item { margin-top: 0; padding-top: 0; border-top: 0; }
+.project-pagination { display: flex; justify-content: center; gap: 2px; margin-top: 12px; }
+.project-pagination button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.project-pagination span { width: 6px; height: 6px; border-radius: 50%; background: var(--hairline); }
+.project-pagination button[aria-current="true"] span { background: var(--strong); }
+.project-controls button, .project-pagination button, .hero-links a { touch-action: manipulation; }
+.project-carousel:focus-visible, .project-controls button:focus-visible, .project-pagination button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+/* A small contact form and a single footer line. */
+.contact .contact-stage { margin-top: 0; }
+.contact-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.contact-form .field:nth-child(3), .contact-form .form-status { grid-column: 1 / -1; }
+.contact-form .field { gap: 4px; min-width: 0; }
+.contact-form input, .contact-form textarea { font-size: 16px; }
+.contact-form textarea { min-height: 72px; padding-block: 8px; }
+.contact-actions .button-primary { height: 32px; padding-inline: 16px; }
+.contact .footer-bar { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); }
+
+/* Screenshots follow the portfolio's explicit theme, including saved choices. */
+.work-preview .project-preview-dark { display: none; }
+:root[data-theme="dark"] .work-preview .project-preview-light { display: none; }
+:root[data-theme="dark"] .work-preview .project-preview-dark { display: block; }
