@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { CalendarDays, Globe } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, CalendarDays, Globe } from "lucide-react";
 import { EmailButton } from "./email-button";
 import { GitHubHeatmap } from "./github-heatmap";
 import { TechLogo } from "./tech-logo";
@@ -7,14 +7,16 @@ import { AvailabilityStatus } from "./availability-status";
 import { ContactForm } from "./contact-form";
 import { ThemeToggle } from "./theme-toggle";
 import { LeetCodeWidget } from "./leetcode-widget";
+import { SelectionLabel } from "./selection-label";
 import { designSkills, education, experience, identity, posts, skills, work } from "../content";
 import { published } from "../lib/site";
 import portraitAsset from "../assets/devashish-portrait.webp";
 import displayPictureAsset from "../assets/display-picture.webp";
-import bannerAsset from "../assets/banner-hero.webp";
+import bannerAsset from "../assets/western-ghats.gif";
+import bannerStill from "../assets/western-ghats-still.png";
 
 const resumeHref = "/resume.pdf";
-const contactNetworks = ["instagram", "x", "github", "linkedin", "cal"];
+const contactNetworks = ["x", "github", "linkedin", "cal"];
 
 function SocialIcon({ network }: { network: string }) {
   if (network === "instagram") return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r=".6" fill="currentColor" /></svg>;
@@ -30,29 +32,61 @@ export function ReferenceHome() {
     { label: "Engineering", items: skills.flatMap(group => group.items) },
   ];
   const [bannerReady, setBannerReady] = useState(false);
+  const projectTrack = useRef<HTMLDivElement>(null);
+  const [activeProject, setActiveProject] = useState(0);
+  const showProject = (index: number) => {
+    const track = projectTrack.current;
+    const slide = track?.children[index] as HTMLElement | undefined;
+    if (track && slide) track.scrollTo({ left: slide.offsetLeft - (track.children[0] as HTMLElement).offsetLeft, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  };
   const projects = published(work).sort((a, b) => a.order - b.order);
   const socials = identity.socials.filter(link => contactNetworks.includes(link.network));
 
   return <main id="content" className="folio">
-    <img className={bannerReady ? "home-banner is-loaded" : "home-banner"} src={bannerAsset} alt="" aria-hidden="true" width="2000" height="750" onLoad={() => setBannerReady(true)} onError={() => setBannerReady(true)} />
+    <picture><source srcSet={bannerStill} media="(prefers-reduced-motion: reduce)" /><img className={bannerReady ? "home-banner is-loaded" : "home-banner"} src={bannerAsset} alt="" aria-hidden="true" width="655" height="260" onLoad={() => setBannerReady(true)} onError={() => setBannerReady(true)} /></picture>
     <section id="top" className="intro">
       <img className="intro-avatar intro-avatar-desktop" src={displayPictureAsset} alt={identity.name} width="100" height="100" />
       <img className="intro-avatar intro-avatar-mobile" src={portraitAsset} alt={identity.name} width="100" height="100" />
-      <h1>I’m <strong>{identity.name}</strong> -- a product designer and software engineer.</h1>
-      <p>I design the flows people use and build the features and APIs behind them, whether the problem is my own, someone else's, or everyone's. I have a deep interest in physics, technology, and poetry.</p>
+      <h1>I’m <SelectionLabel><strong>{identity.name}</strong></SelectionLabel>.</h1>
+      <p>AI engineer. I design and build AI products.</p>
       <AvailabilityStatus />
-      <div className="intro-actions">
+      <nav className="intro-actions hero-links" aria-label="Contact and social profiles">
         <EmailButton />
         <a className="pill" href={resumeHref} target="_blank" rel="noreferrer">Resume ↗</a>
-      </div>
+        {socials.map(link => <a className="pill" key={link.network} href={link.href} target="_blank" rel="noreferrer"><SocialIcon network={link.network} />{link.label}</a>)}
+      </nav>
     </section>
 
     {projects.length > 0 && <section id="work" className="section">
-      <h2 className="section-title">Proof of work</h2>
+      <div className="section-head project-carousel-head">
+        <h2 id="work-heading" className="section-title">Proof of work</h2>
+        <div className="project-controls">
+          <span className="project-count" aria-live="polite">{activeProject + 1} / {projects.length}</span>
+          <button type="button" aria-label="Previous project" disabled={activeProject === 0} onClick={() => showProject(activeProject - 1)}><ArrowLeft size={16} /></button>
+          <button type="button" aria-label="Next project" disabled={activeProject === projects.length - 1} onClick={() => showProject(activeProject + 1)}><ArrowRight size={16} /></button>
+        </div>
+      </div>
+      <div className="project-carousel" role="region" aria-roledescription="carousel" aria-labelledby="work-heading" tabIndex={0} ref={projectTrack} onScroll={event => {
+        const track = event.currentTarget;
+        const first = track.children[0] as HTMLElement;
+        let nearest = 0;
+        Array.from(track.children).forEach((slide, index) => {
+          if (Math.abs((slide as HTMLElement).offsetLeft - first.offsetLeft - track.scrollLeft) < Math.abs((track.children[nearest] as HTMLElement).offsetLeft - first.offsetLeft - track.scrollLeft)) nearest = index;
+        });
+        setActiveProject(nearest);
+      }} onKeyDown={event => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "ArrowRight") { event.preventDefault(); showProject(Math.min(activeProject + 1, projects.length - 1)); }
+        if (event.key === "ArrowLeft") { event.preventDefault(); showProject(Math.max(activeProject - 1, 0)); }
+      }}>
       {projects.map(project => {
         const live = project.links?.find(link => link.label === "Live")?.href;
         const github = project.links?.find(link => link.label === "GitHub")?.href;
-        return <article className="work-item" key={project.href}>
+        return <article className="work-item project-slide" key={project.href} role="group" aria-roledescription="slide" aria-label={`${project.title}, ${projects.indexOf(project) + 1} of ${projects.length}`}>
+          {project.preview && <a className="work-preview" href={live ?? project.href} target={live ? "_blank" : undefined} rel={live ? "noreferrer" : undefined} aria-label={`View ${project.title}`}>
+            <img className={project.preview.darkSrc ? "project-preview-light" : undefined} src={project.preview.src} alt={project.preview.alt} width="1440" height="1000" loading="lazy" decoding="async" />
+            {project.preview.darkSrc && <img className="project-preview-dark" src={project.preview.darkSrc} alt={project.preview.alt} width="1440" height="1000" loading="lazy" decoding="async" />}
+          </a>}
           <div className="work-head">
             <a className="work-title" href={project.href}>{project.title}</a>
             {project.caseStudy && <time dateTime={project.caseStudy.year}>{project.caseStudy.year}</time>}
@@ -64,7 +98,16 @@ export function ReferenceHome() {
           </div>
         </article>;
       })}
+      </div>
+      <div className="project-pagination" aria-label="Choose project">
+        {projects.map((project, index) => <button key={project.href} type="button" aria-label={`Show ${project.title}`} aria-current={activeProject === index ? "true" : undefined} onClick={() => showProject(index)}><span /></button>)}
+      </div>
     </section>}
+
+    <section id="github" className="section">
+      <h2 className="section-title">GitHub</h2>
+      <GitHubHeatmap />
+    </section>
 
     {published(posts).length > 0 && <section id="writing" className="section">
       <div className="section-head">
@@ -79,11 +122,6 @@ export function ReferenceHome() {
         <p>{post.excerpt}</p>
       </article>)}
     </section>}
-
-    <section id="github" className="section">
-      <h2 className="section-title">GitHub</h2>
-      <GitHubHeatmap />
-    </section>
 
     <section id="practice" className="section">
       <h2 className="section-title">Practice</h2>
@@ -131,41 +169,10 @@ export function ReferenceHome() {
 
     <footer id="contact" className="section contact">
       <h2 className="section-title">Contact</h2>
-      <p>Hiring for a product design role, or have something to build? Send me a message. I would love to hear it.</p>
+
       <ContactForm />
-      <nav className="contact-links" aria-label="Social profiles">
-        {socials.map(link => <a className="pill" key={link.network} href={link.href} target="_blank" rel="noreferrer"><SocialIcon network={link.network} />{link.network === "cal" ? "Book a call" : link.label}</a>)}
-      </nav>
-      <nav className="footer-columns" aria-label="Site map">
-        <div>
-          <p className="footer-heading">Navigation</p>
-          <ul>
-            <li><a href="#work">Proof of work</a></li>
-            <li><a href="#experience">Experience</a></li>
-            {published(posts).length > 0 && <li><a href="/blog">Writing</a></li>}
-            <li><a href="/now">Now</a></li>
-            <li><a href="/design-system">Design system</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <p className="footer-heading">Projects</p>
-          <ul>{projects.map(project => <li key={project.href}><a href={project.href}>{project.title}</a></li>)}</ul>
-        </div>
-        <div>
-          <p className="footer-heading">Elsewhere</p>
-          <ul>{socials.filter(link => link.network !== "cal").map(link => <li key={link.network}><a href={link.href} target="_blank" rel="noreferrer">{link.label}</a></li>)}</ul>
-        </div>
-        <div>
-          <p className="footer-heading">Contact</p>
-          <ul>
-            <li><a href={`mailto:${identity.email}`}>{identity.email}</a></li>
-            <li><a href={socials.find(link => link.network === "cal")?.href} target="_blank" rel="noreferrer">Book a call</a></li>
-          </ul>
-        </div>
-      </nav>
       <div className="footer-bar">
-        <p className="folio-footer">© {new Date().getFullYear()} {identity.name}. {identity.footer}</p>
+        <p className="folio-footer">© {new Date().getFullYear()} {identity.name}</p>
         <ThemeToggle />
       </div>
     </footer>

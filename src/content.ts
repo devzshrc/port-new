@@ -4,6 +4,12 @@ import bbaUniversityIcon from "./assets/bbau-university.png";
 import redstringIcon from "./assets/redstring-favicon.png";
 import coverPortfolio from "./assets/cover-portfolio.svg";
 import inferenceCover from "./assets/inference-cover.webp";
+import docksLanding from "./assets/case-studies/docks-light.jpg";
+import docksLandingDark from "./assets/case-studies/docks-dark.jpg";
+import ycLanding from "./assets/case-studies/yc-jobs-light.jpg";
+import ycLandingDark from "./assets/case-studies/yc-jobs-dark.jpg";
+import schemaLanding from "./assets/case-studies/schema-light.jpg";
+import schemaLandingDark from "./assets/case-studies/schema-dark.jpg";
 import docksReviews from "./assets/case-studies/docks-reviews.jpg";
 import inferenceGuide from "./content/posts/inference-engineering.txt" with { type: "text" };
 import { parseMarkdown } from "./lib/markdown";
@@ -43,6 +49,7 @@ export type WorkItem = {
   description: string;
   href: string;
   external?: boolean;
+  preview?: { src: string; darkSrc?: string; alt: string };
   links?: { label: string; href: string }[];
   caseStudy?: CaseStudy;
   order: number;
@@ -117,18 +124,18 @@ export type Post = {
 export const profileLinks = () => identity.socials.filter(link => link.network !== "cal").map(link => link.href);
 
 /** Homepage title and description: name, role and the work it's known for. */
-export const homeTitle = "Devashish: Product Designer and Software Engineer";
-export const homeDescription = "Product designer and software engineer. Selected case studies, writing and experience from Devashish.";
+export const homeTitle = "Devashish: AI Engineer";
+export const homeDescription = "AI engineer building tools for code review, hiring, and form generation.";
 
 export const identity: SiteIdentity = {
   name: "Devashish",
-  role: "Product Designer and Software Engineer",
+  role: "AI Engineer",
   location: "India",
   domain: "devzshrc.in",
   email: "work@devzshrc.in",
   now: { text: "Building backend and platform systems at Redstring Remote.", updated: "Sep 2026" },
   biography: [
-    "I design user flows, build features, and engineer the APIs behind them. At Redstring Remote, I work on backend and platform systems.",
+    "I build AI products, from the interface to the APIs behind them.",
   ],
   avatar,
   banner,
@@ -151,7 +158,8 @@ export const identity: SiteIdentity = {
 export const work: WorkItem[] = [
   {
     title: "YC Jobs",
-    description: "A startup hiring platform for job discovery, resume matching, applications, and candidate sourcing.",
+    preview: { src: ycLanding, darkSrc: ycLandingDark, alt: "YC Jobs landing page" },
+    description: "Startup jobs with resume matching and AI candidate sourcing.",
     href: "/work/yc-jobs",
     links: [
       { label: "Live", href: "https://yc.devzshrc.in" },
@@ -186,7 +194,8 @@ export const work: WorkItem[] = [
   },
   {
     title: "Docks",
-    description: "A GitHub review workspace with a unified inbox, AI guides, code Q&A, and team follow-ups.",
+    preview: { src: docksLanding, darkSrc: docksLandingDark, alt: "Docks landing page" },
+    description: "AI review guides and code Q&A for GitHub pull requests.",
     href: "/work/docks",
     links: [
       { label: "Live", href: "https://app.devzshrc.in" },
@@ -223,7 +232,8 @@ export const work: WorkItem[] = [
   },
   {
     title: "Schema",
-    description: "An AI form builder. Describe the form you need in plain words, and it writes the questions, checks, and skip rules for you.",
+    preview: { src: schemaLanding, darkSrc: schemaLandingDark, alt: "Schema landing page" },
+    description: "Turn a prompt into a form with questions, validation, and skip logic.",
     href: "/work/schema",
     links: [
       { label: "Live", href: "https://notyourtypeformx-web.vercel.app/" },
